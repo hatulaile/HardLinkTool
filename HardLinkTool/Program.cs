@@ -44,6 +44,7 @@ public static class Program
 
                 await Console.Out.WriteLineAsync($"成功 {result.Success} 个文件. \n" +
                                                  $"失败 {result.Failure} 个文件. \n" +
+                                                 $"跳过 {result.Skip} 个文件. \n" +
                                                  $"总共 {result.Total} 个文件.");
                 await Console.Out.WriteLineAsync($"输出在: {option.Output ?? option.Input}");
             },
