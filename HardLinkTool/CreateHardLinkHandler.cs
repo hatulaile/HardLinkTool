@@ -22,7 +22,7 @@ public class CreateHardLinkHandler
 
     private int _repetition;
 
-    public CreateHardLinkHandler(string target, string output, long skipSize = 1000,
+    public CreateHardLinkHandler(string target, string output, long skipSize = 1024L,
         bool isOverwrite = false)
     {
         if (target == output)
