@@ -8,6 +8,7 @@
         <LangVersion>default</LangVersion>
         <Configurations>Release;Debug</Configurations>
         <Platforms>x64</Platforms>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
