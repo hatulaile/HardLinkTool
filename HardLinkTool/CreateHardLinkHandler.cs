@@ -20,6 +20,8 @@ public class CreateHardLinkHandler
 
     private int _total;
 
+    private int _repetition;
+
     public CreateHardLinkHandler(string target, string output, long skipSize = 1000,
         bool isOverwrite = false)
     {
@@ -65,26 +67,20 @@ public class CreateHardLinkHandler
             if (SkipSize > new FileInfo(Target).Length)
             {
                 File.Copy(Target, Output);
-                return new CreateHardLinkResults(0, 0, 1, 1);
+                return new CreateHardLinkResults(0, 0, 1, 0, 1);
             }
 
             if (CreateHardLink(Target, Output))
             {
-                return new CreateHardLinkResults(1, 0, 0, 1);
+                return new CreateHardLinkResults(1, 0, 0, 0, 1);
             }
-            else
-            {
-#if DEBUG
-                throw new Exception(GetLastErrorMessage());
-#else
-                return new CreateHardLinkResults(0, 1, 0, 1);
-#endif
-            }
+
+            throw new Exception(GetLastErrorMessage());
         }
 
         await CreateDirectoryHardLink(Target, Output);
 
-        return new CreateHardLinkResults(_success, _failure, _skip, _total);
+        return new CreateHardLinkResults(_success, _failure, _skip, _repetition, _total);
     }
 
     private async Task CreateDirectoryHardLink(string directory, string newDirectory)
@@ -121,6 +117,7 @@ public class CreateHardLinkHandler
                         {
                             if (!IsOverwrite)
                             {
+                                Interlocked.Increment(ref _repetition);
                                 continue;
                             }
 
@@ -152,7 +149,7 @@ public class CreateHardLinkHandler
 #if DEBUG
                 await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: \n{e}");
 #else
-               await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: {e.Message}");
+                await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: {e.Message}");
 
 #endif
             }

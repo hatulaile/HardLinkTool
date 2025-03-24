@@ -45,8 +45,9 @@ public static class Program
                 await Console.Out.WriteLineAsync($"成功 {result.Success} 个文件. \n" +
                                                  $"失败 {result.Failure} 个文件. \n" +
                                                  $"跳过 {result.Skip} 个文件. \n" +
-                                                 $"总共 {result.Total} 个文件.");
-                await Console.Out.WriteLineAsync($"输出在: {output}");
+                                                 $"已存在 {result.Repetition} 个文件. \n" +
+                                                 $"总共 {result.Total} 个文件. \n" +
+                                                 $"{(result.Success == 0 ? "未能输出任何文件! " : $"输出在: {output}! ")} \n");
             },
             new CreateHardLinkBinder(pathArgument, outputOption, skipSizeOption, overwriteOption));
 
