@@ -24,10 +24,11 @@ public static class Program
         rootCommand.SetHandler(async option =>
             {
                 CreateHardLinkResults result;
+                string output = option.Output ?? $"{option.Input}{HAND_LINK_POSTFIX}";
                 try
                 {
                     result = await new CreateHardLinkHandler(option.Input,
-                            option.Output ?? $"{option.Output}{HAND_LINK_POSTFIX}",
+                            output,
                             isOverwrite: option.IsOverwrite)
                         .Run();
                 }
@@ -46,7 +47,7 @@ public static class Program
                                                  $"失败 {result.Failure} 个文件. \n" +
                                                  $"跳过 {result.Skip} 个文件. \n" +
                                                  $"总共 {result.Total} 个文件.");
-                await Console.Out.WriteLineAsync($"输出在: {option.Output ?? option.Input}");
+                await Console.Out.WriteLineAsync($"输出在: {output}");
             },
             new CreateHardLinkBinder(pathArgument, outputOption, skipSizeOption, overwriteOption));
 
