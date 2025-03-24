@@ -1,10 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace HardLinkTool;
 
-public static class CreateHardLinkHelper
+public static partial class CreateHardLinkHelper
 {
     public static bool CreateHardLink(string fileName, string newFileName) =>
         CreateHardLinkW(newFileName, fileName, IntPtr.Zero);
@@ -12,18 +11,12 @@ public static class CreateHardLinkHelper
     public static bool IsFile(string path) =>
         !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
 
-    public static bool IsExists(string path)
-    {
-        if (File.Exists(path))
-        {
-            return true;
-        }
+    public static bool IsExists(string path) =>
+        File.Exists(path) || Directory.Exists(path);
 
-        return Directory.Exists(path);
-    }
-
-    [DllImport("Kernel32.dll", CharSet = CharSet.Unicode)]
-    private static extern bool CreateHardLinkW(
+    [LibraryImport("Kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool CreateHardLinkW(
         string lpFileName,
         string lpExistingFileName,
         IntPtr lpSecurityAttributes
@@ -36,10 +29,11 @@ public static class CreateHardLinkHelper
         return lpBuffer.ToString();
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-    private static extern uint GetLastError();
+    [LibraryImport("kernel32.dll")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvStdcall)])]
+    private static partial uint GetLastError();
 
-    [DllImport("Kernel32.dll")]
+    [DllImport("Kernel32.dll", CharSet = CharSet.Unicode)]
     private static extern int FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId,
         [Out] StringBuilder lpBuffer, uint nSize, IntPtr arguments);
 }
