@@ -21,16 +21,14 @@ jobs:
       name: Setup dotnet
       with:
         dotnet-version: '9.0.*'
-    
-    - name: Install dependencies
-      run: dotnet restore
 
     - name: Build windows x64
-      run: dotnet publish -c Release -r win-x64 -f net9.0 --no-restore
+      shell: pwsh
+      run: ../scripts/publish.ps1
 
     - name: Create release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ./bin\Release\net9.0\win-x64\publish\HardLinkTool.exe
+          HardLinkTool/publish
           LICENSE
