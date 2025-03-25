@@ -5,6 +5,10 @@ on:
     tags:
       - "v*"
 
+defaults:
+  run:
+    working-directory: ./HardLinkTool
+
 jobs:
   build:
     runs-on: windows-latest
@@ -22,11 +26,11 @@ jobs:
       run: dotnet restore
 
     - name: Build windows x64
-      run: dotnet publish -c Release -r win-x64 -f net9.0 -o ./bin 
+      run: dotnet publish -c Release -r win-x64 -f net9.0 --no-restore
 
     - name: Create release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ./bin/HardLinkTool.exe
+          ./bin\Release\net9.0\win-x64\publish\HardLinkTool.exe
           LICENSE
