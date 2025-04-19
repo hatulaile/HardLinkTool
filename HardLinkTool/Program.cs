@@ -28,7 +28,7 @@ public static class Program
                 {
                     result = await new CreateHardLinkHandler(option.Input,
                             output, option.SkipSize, option.IsOverwrite)
-                        .Run();
+                        .RunAsync();
                 }
                 catch (Exception e)
                 {

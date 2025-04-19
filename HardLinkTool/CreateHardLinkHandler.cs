@@ -45,7 +45,7 @@ public class CreateHardLinkHandler
     }
 
 
-    public async Task<CreateHardLinkResults> Run()
+    public async Task<CreateHardLinkResults> RunAsync()
     {
         if (IsFile(Target))
         {
@@ -137,8 +137,8 @@ public class CreateHardLinkHandler
                     }
                     case DirectoryInfo dir:
                     {
-                        tasks.Add(CreateDirectoryHardLink(dir.FullName,
-                            newPath));
+                        tasks.Add(Task.Run(() => CreateDirectoryHardLink(dir.FullName,
+                            newPath)));
                         break;
                     }
                 }
