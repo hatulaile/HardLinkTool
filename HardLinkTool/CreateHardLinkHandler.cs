@@ -108,7 +108,7 @@ public class CreateHardLinkHandler
 
                         if (SkipSize > 0 && SkipSize > fileInfo.Length)
                         {
-                            File.Copy(fileInfo.FullName, newPath, true);
+                            File.Copy(fileInfo.FullName, newPath, IsOverwrite);
                             Interlocked.Increment(ref _skip);
                             continue;
                         }
