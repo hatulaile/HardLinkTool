@@ -49,19 +49,22 @@ public class CreateHardLinkHandler
     {
         if (IsFile(Target))
         {
-            if (!IsFile(Output))
+            if (IsExists(Output))
             {
-                throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
-                                            $"请手动删除 {Output}! ");
-            }
+                if (!IsFile(Output))
+                {
+                    throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
+                                                $"请手动删除 {Output}! ");
+                }
 
-            if (IsOverwrite)
-            {
-                File.Delete(Output);
-            }
-            else
-            {
-                throw new Exception("文件已经存在");
+                if (IsOverwrite)
+                {
+                    File.Delete(Output);
+                }
+                else
+                {
+                    throw new Exception("文件已经存在");
+                }
             }
 
             if (SkipSize > new FileInfo(Target).Length)
