@@ -1,10 +1,11 @@
 ﻿using System.CommandLine;
+using System.Diagnostics;
 
 namespace HardLinkTool;
 
 public static class Program
 {
-    const string HAND_LINK_POSTFIX = "-link";
+    public const string HAND_LINK_POSTFIX = "-link";
 
     public static async Task<int> Main(string[] args)
     {
@@ -22,13 +23,13 @@ public static class Program
         };
         rootCommand.SetHandler(async option =>
             {
+                var handler = new CreateHardLinkHandler(option.Input,
+                    option.Output, option.SkipSize, option.IsOverwrite);
                 CreateHardLinkResults result;
-                string output = option.Output ?? $"{option.Input}{HAND_LINK_POSTFIX}";
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 try
                 {
-                    result = await new CreateHardLinkHandler(option.Input,
-                            output, option.SkipSize, option.IsOverwrite)
-                        .RunAsync();
+                    result = await handler.RunAsync();
                 }
                 catch (Exception e)
                 {
@@ -41,14 +42,20 @@ public static class Program
                     return;
                 }
 
-                await Console.Out.WriteLineAsync($"成功 {result.Success} 个文件. \n" +
-                                                 $"失败 {result.Failure} 个文件. \n" +
-                                                 $"跳过 {result.Skip} 个文件. \n" +
-                                                 $"已存在 {result.Repetition} 个文件. \n" +
-                                                 $"总共 {result.Total} 个文件. \n" +
-                                                 $"{(result.Success == 0 ? "未能输出任何文件! " : $"输出在: {output}! ")} \n");
+                stopwatch.Stop();
+                await Console.Out.WriteLineAsync($"成功 {result.SuccessFile} 个文件. " + $"失败 {result.FailureFile} 个文件. \n" +
+                                                 $"直接复制 {result.SkipFile} 个文件. 已存在 {result.RepetitionFile} 个文件. 覆盖 {result.OverwriteFile} 个文件. \n" +
+                                                 $"总共 {result.TotalFile} 个文件. \n\n" +
+                                                 $"新建 {result.NewDirectory} 个文件夹. " +
+                                                 $"无法新建 {result.FailureDirectory} 个文件夹. \n" +
+                                                 $"已存在 {result.RepetitionDirectory} 个文件夹. 覆盖 {result.OverwriteDirectory} 个文件夹. \n" +
+                                                 $"总共 {result.TotalDirectory} 个文件夹. \n\n" +
+                                                 $"总共耗时 {stopwatch.ElapsedMilliseconds} 毫秒. \n" +
+                                                 $"总共 {result.TotalFile + result.TotalDirectory} 个文件/文件夹. \n" +
+                                                 $"{(result.SuccessFile == 0 ? "未能输出任何文件! " : $"输出在: {handler.Output}")} \n");
             },
             new CreateHardLinkBinder(pathArgument, outputOption, skipSizeOption, overwriteOption));
+
 
         return await rootCommand.InvokeAsync(args);
     }

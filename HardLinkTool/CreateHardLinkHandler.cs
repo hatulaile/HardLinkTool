@@ -1,40 +1,43 @@
-﻿using static HardLinkTool.CreateHardLinkHelper;
+﻿using System.Diagnostics.CodeAnalysis;
+using static HardLinkTool.CreateHardLinkHelper;
 
 namespace HardLinkTool;
 
 public class CreateHardLinkHandler
 {
-    public string Target { get; }
+    public string Target { get; private set; }
 
-    public string Output { get; }
+    public string? Output { get; private set; }
 
-    public long SkipSize { get; }
+    public long SkipSize { get; private set; }
 
-    public bool IsOverwrite { get; }
+    public bool IsOverwrite { get; private set; }
 
-    private int _success;
+    private int _successFile;
 
-    private int _failure;
+    private int _failureFile;
 
-    private int _skip;
+    private int _skipFile;
 
-    private int _total;
+    private int _repetitionFile;
 
-    private int _repetition;
+    private int _overwriteFile;
 
-    public CreateHardLinkHandler(string target, string output, long skipSize = 1024L,
+    private int _totalFile;
+
+    private int _newDirectory;
+
+    private int _failureDirectory;
+
+    private int _repetitionDirectory;
+
+    private int _overwriteDirectory;
+
+    private int _totalDirectory;
+
+    public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L,
         bool isOverwrite = false)
     {
-        if (target == output)
-        {
-            throw new ArgumentException("目标不能与新位置相同.");
-        }
-
-        if (!IsExists(target))
-        {
-            throw new ArgumentException("目标不存在.");
-        }
-
         Target = target;
 
         Output = output;
@@ -45,119 +48,159 @@ public class CreateHardLinkHandler
     }
 
 
+    [MemberNotNull(nameof(Output))]
     public async Task<CreateHardLinkResults> RunAsync()
     {
-        if (IsFile(Target))
+        Target = Path.GetFullPath(Target);
+        if (!Path.Exists(Target))
         {
-            if (IsExists(Output))
-            {
-                if (!IsFile(Output))
-                {
-                    throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
-                                                $"请手动删除 {Output}! ");
-                }
-
-                if (IsOverwrite)
-                {
-                    File.Delete(Output);
-                }
-                else
-                {
-                    throw new Exception("文件已经存在");
-                }
-            }
-
-            if (SkipSize > new FileInfo(Target).Length)
-            {
-                File.Copy(Target, Output);
-                return new CreateHardLinkResults(0, 0, 1, 0, 1);
-            }
-
-            if (CreateHardLink(Target, Output))
-            {
-                return new CreateHardLinkResults(1, 0, 0, 0, 1);
-            }
-
-            throw new Exception(GetLastErrorMessage());
+            throw new ArgumentException("目标不存在.");
         }
 
-        await CreateDirectoryHardLink(Target, Output);
+        Output ??= GetDefaultOutput(Target, IsFile(Target), Program.HAND_LINK_POSTFIX);
 
-        return new CreateHardLinkResults(_success, _failure, _skip, _repetition, _total);
+        if (Target == Output)
+        {
+            throw new ArgumentException("目标不能与新位置相同.");
+        }
+
+        if (IsEitherParent(Target, Output))
+        {
+            throw new Exception("不能将新位置设置为与目标嵌套的关系!!!! \n" +
+                                "如果是未设置输出目录请截图发送 issue!!!! \n" +
+                                $"Target :{Target} \n" +
+                                $"Output :{Output} \n");
+        }
+
+        if (Path.Exists(Output))
+        {
+            if (!IsFile(Output))
+            {
+                throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
+                                            $"请手动删除 {Output}! ");
+            }
+
+            if (IsOverwrite)
+            {
+                File.Delete(Output);
+            }
+            else
+            {
+                throw new IOException("文件已经存在");
+            }
+        }
+
+        if (IsFile(Target))
+        {
+            await CreateFileHardLink(new FileInfo(Target), Output);
+        }
+        else
+        {
+            await CreateDirectoryHardLink(Target, Output);
+        }
+
+        return new CreateHardLinkResults
+        {
+            SuccessFile = _successFile,
+            FailureFile = _failureFile,
+            SkipFile = _skipFile,
+            RepetitionFile = _repetitionFile,
+            OverwriteFile = _overwriteFile,
+            TotalFile = _totalFile,
+            NewDirectory = _newDirectory,
+            FailureDirectory = _failureDirectory,
+            RepetitionDirectory = _repetitionDirectory,
+            OverwriteDirectory = _overwriteDirectory,
+            TotalDirectory = _totalDirectory
+        };
     }
 
     private async Task CreateDirectoryHardLink(string directory, string newDirectory)
     {
-        List<Task> tasks = [];
-
-        if (!IsExists(newDirectory))
+        Interlocked.Increment(ref _totalDirectory);
+        if (File.Exists(newDirectory))
         {
-            Directory.CreateDirectory(newDirectory);
+            if (!IsOverwrite)
+            {
+                Interlocked.Increment(ref _failureDirectory);
+                await Console.Error.WriteLineAsync($"{newDirectory} 存在文件,请删除,指定目录或者添加 -o 属性覆盖~");
+                return;
+            }
+
+            Interlocked.Increment(ref _overwriteDirectory);
+            File.Delete(newDirectory);
         }
 
-        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-
-        foreach (FileSystemInfo fileSystemInfo in directoryInfo.GetFileSystemInfos())
+        if (!Directory.Exists(newDirectory))
         {
-            try
-            {
-                string newPath = Path.Combine(newDirectory, fileSystemInfo.Name);
+            Directory.CreateDirectory(newDirectory);
+            Interlocked.Increment(ref _newDirectory);
+        }
+        else
+        {
+            Interlocked.Increment(ref _repetitionDirectory);
+        }
 
-                switch (fileSystemInfo)
-                {
-                    case FileInfo fileInfo:
-                    {
-                        Interlocked.Increment(ref _total);
+        var directoryInfo = new DirectoryInfo(directory);
+        DirectoryInfo[] directoryInfos = directoryInfo.GetDirectories();
+        List<Task> tasks = new List<Task>(directoryInfos.Length);
 
-                        if (SkipSize > 0 && SkipSize > fileInfo.Length)
-                        {
-                            File.Copy(fileInfo.FullName, newPath, IsOverwrite);
-                            Interlocked.Increment(ref _skip);
-                            continue;
-                        }
+        foreach (DirectoryInfo info in directoryInfos)
+        {
+            tasks.Add(Task.Run(() => CreateDirectoryHardLink(info.FullName,
+                Path.Combine(newDirectory, info.Name))));
+        }
 
-                        if (File.Exists(newPath))
-                        {
-                            if (!IsOverwrite)
-                            {
-                                Interlocked.Increment(ref _repetition);
-                                continue;
-                            }
-
-                            File.Delete(newPath);
-                        }
-
-                        if (CreateHardLink(fileInfo.FullName, newPath))
-                        {
-                            Interlocked.Increment(ref _success);
-                        }
-                        else
-                        {
-                            throw new IOException(GetLastErrorMessage());
-                        }
-
-                        break;
-                    }
-                    case DirectoryInfo dir:
-                    {
-                        tasks.Add(Task.Run(() => CreateDirectoryHardLink(dir.FullName,
-                            newPath)));
-                        break;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Interlocked.Increment(ref _failure);
-#if DEBUG
-                await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: \n{e}");
-#else
-                await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: {e.Message}");
-
-#endif
-            }
+        foreach (var info in directoryInfo.GetFiles())
+        {
+            await CreateFileHardLink(info, Path.Combine(newDirectory, info.Name));
         }
 
         await Task.WhenAll(tasks);
+    }
+
+    private async Task CreateFileHardLink(FileInfo info, string newPath)
+    {
+        try
+        {
+            Interlocked.Increment(ref _totalFile);
+
+            if (SkipSize > 0L && SkipSize > info.Length)
+            {
+                File.Copy(info.FullName, newPath, IsOverwrite);
+                Interlocked.Increment(ref _skipFile);
+                return;
+            }
+
+            if (File.Exists(newPath))
+            {
+                if (!IsOverwrite)
+                {
+                    Interlocked.Increment(ref _repetitionFile);
+                    return;
+                }
+
+                Interlocked.Increment(ref _overwriteFile);
+                File.Delete(newPath);
+            }
+
+            if (CreateHardLink(info.FullName, newPath))
+            {
+                Interlocked.Increment(ref _successFile);
+            }
+            else
+            {
+                throw new IOException(GetLastErrorMessage());
+            }
+        }
+        catch (Exception e)
+        {
+            Interlocked.Increment(ref _failureFile);
+#if DEBUG
+            await Console.Error.WriteLineAsync($"创建文件硬链接时遇到错误: {e}");
+#else
+            await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: {e.Message}");
+#endif
+        }
     }
 }

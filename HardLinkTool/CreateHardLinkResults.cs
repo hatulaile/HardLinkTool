@@ -2,22 +2,25 @@
 
 public struct CreateHardLinkResults
 {
-    public CreateHardLinkResults(int success, int failure, int skip,int repetition, int total)
-    {
-        Success = success;
-        Failure = failure;
-        Skip = skip;
-        Repetition = repetition;
-        Total = total;
-    }
+    public required int SuccessFile { get; init; }
 
-    public int Success { get; init; }
+    public required int FailureFile { get; init; }
 
-    public int Failure { get; init; }
+    public required int SkipFile { get; init; }
 
-    public int Skip { get; init; }
-    
-    public int Repetition { get; init; }
+    public required int RepetitionFile { get; init; }
 
-    public int Total { get; init; }
+    public required int OverwriteFile { get; init; }
+
+    public required int TotalFile { get; init; }
+
+    public required int NewDirectory { get; init; }
+
+    public required int FailureDirectory { get; init; }
+
+    public required int RepetitionDirectory { get; init; }
+
+    public required int OverwriteDirectory { get; init; }
+
+    public required int TotalDirectory { get; init; }
 }
