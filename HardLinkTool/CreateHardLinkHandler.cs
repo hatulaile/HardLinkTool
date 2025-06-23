@@ -51,13 +51,14 @@ public class CreateHardLinkHandler
     [MemberNotNull(nameof(Output))]
     public async Task<CreateHardLinkResults> RunAsync()
     {
-        Target = Path.GetFullPath(Target);
+        Target = Path.GetFullPath(ProcessPathPostfix(Target));
         if (!Path.Exists(Target))
         {
             throw new ArgumentException("目标不存在.");
         }
 
         Output ??= GetDefaultOutput(Target, IsFile(Target), Program.HAND_LINK_POSTFIX);
+        Output = Path.GetFullPath(ProcessPathPostfix(Output));
 
         if (Target == Output)
         {

@@ -5,6 +5,13 @@ namespace HardLinkTool;
 
 public static partial class CreateHardLinkHelper
 {
+    private static readonly char[] Postfix = ['/', '\\', '\'', '\"'];
+
+    public static string ProcessPathPostfix(string path)
+    {
+        return path.TrimEnd(Postfix);
+    }
+
     public static bool CreateHardLink(string fileName, string newFileName) =>
         CreateHardLinkW(newFileName, fileName, IntPtr.Zero);
 
@@ -16,8 +23,8 @@ public static partial class CreateHardLinkHelper
 
     private static bool IsParent(string path1, string path2)
     {
-        DirectoryInfo info1 = new DirectoryInfo(path1.TrimEnd('/', '\\'));
-        DirectoryInfo info2 = new DirectoryInfo(path2.TrimEnd('/', '\\'));
+        DirectoryInfo info1 = new DirectoryInfo(ProcessPathPostfix(path1));
+        DirectoryInfo info2 = new DirectoryInfo(ProcessPathPostfix(path2));
         bool isParent = false;
         while (info2.Parent != null)
         {
@@ -48,7 +55,7 @@ public static partial class CreateHardLinkHelper
                 $"{Path.GetFileNameWithoutExtension(input)}{handLinkPostfix}{Path.GetExtension(input)}");
         }
 
-        return $"{input.TrimEnd('/', '\\')}{handLinkPostfix}";
+        return $"{ProcessPathPostfix(input)}{handLinkPostfix}";
     }
 
     [LibraryImport("Kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
