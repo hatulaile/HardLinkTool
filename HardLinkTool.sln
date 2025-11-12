@@ -1,6 +1,6 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardLinkTool", "HardLinkTool\HardLinkTool.csproj", "{536D2039-3FCC-4698-8E9C-9F23247B2440}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HardLinkTool", "HardLinkTool\HardLinkTool.csproj", "{536D2039-3FCC-4698-8E9C-9F23247B2440}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
