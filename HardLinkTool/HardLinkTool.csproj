@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Version>0.2.0.1-$(Configuration)</Version>
+    <Version>0.2.0.2-$(Configuration)</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
@@ -15,6 +15,15 @@
     <OptimizationPreference>Speed</OptimizationPreference>
     <TargetFramework>net10.0</TargetFramework>
     <SelfContained>true</SelfContained>
+    <Platforms>x64</Platforms>
+
+    <Company>hatulaile</Company>
+    <Copyright>hatulaile</Copyright>
+    <AssemblyTitle>HardLinkTool</AssemblyTitle>
+    <Product>HardLinkTool</Product>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
+    <Description>创建硬链接快捷工具</Description>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <DebugType>none</DebugType>
