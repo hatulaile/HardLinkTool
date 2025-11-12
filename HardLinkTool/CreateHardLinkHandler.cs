@@ -118,6 +118,7 @@ public class CreateHardLinkHandler
 
     private async Task CreateDirectoryHardLink(string directory, string newDirectory)
     {
+        await Task.Yield();
         Interlocked.Increment(ref _totalDirectory);
         if (File.Exists(newDirectory))
         {
@@ -148,8 +149,7 @@ public class CreateHardLinkHandler
 
         foreach (DirectoryInfo info in directoryInfos)
         {
-            tasks.Add(Task.Run(() => CreateDirectoryHardLink(info.FullName,
-                Path.Combine(newDirectory, info.Name))));
+            tasks.Add(CreateDirectoryHardLink(info.FullName, Path.Combine(newDirectory, info.Name)));
         }
 
         foreach (var info in directoryInfo.GetFiles())
