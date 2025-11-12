@@ -73,32 +73,14 @@ public class CreateHardLinkHandler
                                 $"Output :{Output} \n");
         }
 
-        if (Path.Exists(Output))
+        if (Directory.Exists(Output))
         {
-            if (!IsFile(Output))
-            {
-                throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
-                                            $"请手动删除 {Output}! ");
-            }
-
-            if (IsOverwrite)
-            {
-                File.Delete(Output);
-            }
-            else
-            {
-                throw new IOException("文件已经存在");
-            }
+            throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
+                                        $"请手动删除 {Output}! ");
         }
 
-        if (IsFile(Target))
-        {
-            await CreateFileHardLink(new FileInfo(Target), Output);
-        }
-        else
-        {
-            await CreateDirectoryHardLink(Target, Output);
-        }
+        if (IsFile(Target)) await CreateFileHardLink(new FileInfo(Target), Output);
+        else await CreateDirectoryHardLink(Target, Output);
 
         return new CreateHardLinkResults
         {
