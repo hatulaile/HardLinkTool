@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace HardLinkTool;
 
@@ -23,6 +24,12 @@ public static class Program
         };
         rootCommand.SetHandler(async option =>
             {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    await Console.Error.WriteLineAsync("本软件仅支持 Windows 系统!");
+                    return;
+                }
+
                 var handler = new CreateHardLinkHandler(option.Input,
                     option.Output, option.SkipSize, option.IsOverwrite);
                 CreateHardLinkResults result;
