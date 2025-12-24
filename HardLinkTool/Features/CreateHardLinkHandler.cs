@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using static HardLinkTool.CreateHardLinkHelper;
+using HardLinkTool.Features.Interfaces;
+using HardLinkTool.Modules;
+using static HardLinkTool.Features.Utils.CreateHardLinkUtils;
 
-namespace HardLinkTool;
+namespace HardLinkTool.Features;
 
 public class CreateHardLinkHandler
 {
@@ -12,6 +14,8 @@ public class CreateHardLinkHandler
     public long SkipSize { get; private set; }
 
     public bool IsOverwrite { get; private set; }
+
+    private ILogger _logger;
 
     private int _successFile;
 
@@ -36,7 +40,7 @@ public class CreateHardLinkHandler
     private int _totalDirectory;
 
     public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L,
-        bool isOverwrite = false)
+        bool isOverwrite = false, ILogger? logger = null)
     {
         Target = target;
 
@@ -45,6 +49,8 @@ public class CreateHardLinkHandler
         SkipSize = skipSize;
 
         IsOverwrite = isOverwrite;
+
+        _logger = logger ?? new Logger();
     }
 
 
@@ -107,7 +113,7 @@ public class CreateHardLinkHandler
             if (!IsOverwrite)
             {
                 Interlocked.Increment(ref _failureDirectory);
-                await Console.Error.WriteLineAsync($"{newDirectory} 存在文件,请删除,指定目录或者添加 -o 属性覆盖~");
+                _logger.Error($"试图新建文件夹 {directory} 失败!\n {newDirectory} 存在文件.");
                 return;
             }
 
@@ -142,7 +148,7 @@ public class CreateHardLinkHandler
         await Task.WhenAll(tasks);
     }
 
-    private async Task CreateFileHardLink(FileInfo info, string newPath)
+    private Task CreateFileHardLink(FileInfo info, string newPath)
     {
         try
         {
@@ -152,7 +158,7 @@ public class CreateHardLinkHandler
             {
                 File.Copy(info.FullName, newPath, IsOverwrite);
                 Interlocked.Increment(ref _skipFile);
-                return;
+                return Task.CompletedTask;
             }
 
             if (File.Exists(newPath))
@@ -160,7 +166,7 @@ public class CreateHardLinkHandler
                 if (!IsOverwrite)
                 {
                     Interlocked.Increment(ref _repetitionFile);
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 Interlocked.Increment(ref _overwriteFile);
@@ -179,11 +185,9 @@ public class CreateHardLinkHandler
         catch (Exception e)
         {
             Interlocked.Increment(ref _failureFile);
-#if DEBUG
-            await Console.Error.WriteLineAsync($"创建文件硬链接时遇到错误: {e}");
-#else
-            await Console.Error.WriteLineAsync($"创建硬链接时遇到错误: {e.Message}");
-#endif
+            _logger.Error($"{info.FullName} 试图创建硬链接失败, 新位置: {newPath}.\n 错误信息: {e}");
         }
+
+        return Task.CompletedTask;
     }
 }

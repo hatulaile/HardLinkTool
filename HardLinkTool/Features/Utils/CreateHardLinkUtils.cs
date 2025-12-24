@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace HardLinkTool;
+namespace HardLinkTool.Features.Utils;
 
-public static partial class CreateHardLinkHelper
+public static partial class CreateHardLinkUtils
 {
     private static readonly char[] Postfix = ['/', '\\', '\'', '\"'];
 

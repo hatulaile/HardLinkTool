@@ -1,4 +1,4 @@
-﻿namespace HardLinkTool;
+﻿namespace HardLinkTool.Features.Enums;
 
 public enum ErrorCode
 {
