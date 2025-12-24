@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using HardLinkTool.Features.Interfaces;
 using HardLinkTool.Modules;
 using static HardLinkTool.Features.Utils.CreateHardLinkUtils;
@@ -16,6 +17,8 @@ public class CreateHardLinkHandler
     public bool IsOverwrite { get; private set; }
 
     private ILogger _logger;
+
+    private IOverwriteDisplay? _overwriteDisplays;
 
     private int _successFile;
 
@@ -39,8 +42,12 @@ public class CreateHardLinkHandler
 
     private int _totalDirectory;
 
+    private Stopwatch? _stopwatch;
+    
+    private int _refreshTime;
+
     public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L,
-        bool isOverwrite = false, ILogger? logger = null)
+        bool isOverwrite = false, ILogger? logger = null, IOverwriteDisplay? overwriteDisplays = null, int refreshTime = 1000)
     {
         Target = target;
 
@@ -51,10 +58,14 @@ public class CreateHardLinkHandler
         IsOverwrite = isOverwrite;
 
         _logger = logger ?? new Logger();
+
+        _overwriteDisplays = overwriteDisplays;
+        
+        _refreshTime= refreshTime;
     }
 
 
-    [MemberNotNull(nameof(Output))]
+    [MemberNotNull(nameof(Output), nameof(_stopwatch))]
     public async Task<CreateHardLinkResults> RunAsync()
     {
         Target = Path.GetFullPath(ProcessPathPostfix(Target));
@@ -85,8 +96,21 @@ public class CreateHardLinkHandler
                                         $"请手动删除 {Output}! ");
         }
 
-        if (IsFile(Target)) await CreateFileHardLink(new FileInfo(Target), Output);
-        else await CreateDirectoryHardLink(Target, Output);
+        _stopwatch = Stopwatch.StartNew();
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        if (IsFile(Target))
+        {
+            await CreateFileHardLink(new FileInfo(Target), Output);
+        }
+        else
+        {
+            if (_overwriteDisplays is not null) _ = Refresh(tokenSource.Token);
+            await CreateDirectoryHardLink(Target, Output);
+        }
+        
+        await tokenSource.CancelAsync();
+        _overwriteDisplays?.Repetition();
+        _stopwatch.Stop();
 
         return new CreateHardLinkResults
         {
@@ -100,8 +124,28 @@ public class CreateHardLinkHandler
             FailureDirectory = _failureDirectory,
             RepetitionDirectory = _repetitionDirectory,
             OverwriteDirectory = _overwriteDirectory,
-            TotalDirectory = _totalDirectory
+            TotalDirectory = _totalDirectory,
+            ElapsedMilliseconds = _stopwatch.ElapsedMilliseconds,
         };
+    }
+
+    private async Task Refresh(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (_overwriteDisplays is null) return;
+        await Task.Yield();
+        while (!token.IsCancellationRequested)
+        {
+            _overwriteDisplays.Overwrite($"成功 {_successFile} 个文件. " + $"失败 {_failureFile} 个文件. \n" +
+                                         $"直接复制 {_skipFile} 个文件. 已存在 {_repetitionFile} 个文件. 覆盖 {_overwriteFile} 个文件. \n" +
+                                         $"总共 {_totalFile} 个文件. \n\n" +
+                                         $"新建 {_newDirectory} 个文件夹. " + $"无法新建 {_failureDirectory} 个文件夹. \n" +
+                                         $"已存在 {_repetitionDirectory} 个文件夹. 覆盖 {_overwriteDirectory} 个文件夹. \n" +
+                                         $"总共 {_totalDirectory} 个文件夹. \n\n" +
+                                         $"总共耗时 {_stopwatch?.ElapsedMilliseconds ?? -1L} 毫秒. \n" +
+                                         $"总共 {_totalFile + _totalDirectory} 个文件/文件夹. \n");
+            await Task.Delay(_refreshTime, token);
+        }
     }
 
     private async Task CreateDirectoryHardLink(string directory, string newDirectory)
@@ -113,7 +157,7 @@ public class CreateHardLinkHandler
             if (!IsOverwrite)
             {
                 Interlocked.Increment(ref _failureDirectory);
-                _logger.Error($"试图新建文件夹 {directory} 失败!\n {newDirectory} 存在文件.");
+                _logger.Error($"试图新建文件夹 {directory} 失败! \n{newDirectory} 存在文件.");
                 return;
             }
 
@@ -185,7 +229,7 @@ public class CreateHardLinkHandler
         catch (Exception e)
         {
             Interlocked.Increment(ref _failureFile);
-            _logger.Error($"{info.FullName} 试图创建硬链接失败, 新位置: {newPath}.\n 错误信息: {e}");
+            _logger.Error($"{info.FullName} 试图创建硬链接失败, 新位置: {newPath}. \n错误信息: {e}");
         }
 
         return Task.CompletedTask;

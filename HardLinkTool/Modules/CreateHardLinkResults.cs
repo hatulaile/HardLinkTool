@@ -23,4 +23,6 @@ public struct CreateHardLinkResults
     public required int OverwriteDirectory { get; init; }
 
     public required int TotalDirectory { get; init; }
+    
+    public required long ElapsedMilliseconds { get; init; }
 }
