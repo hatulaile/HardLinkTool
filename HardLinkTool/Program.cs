@@ -19,8 +19,7 @@ public static class Program
         var outputOption = new Option<string?>("Output", ["--output", "-o"]) { Description = "输出文件路径." };
         var skipSizeOption = new Option<long>("SkipSize", ["--skipSize", "-s"])
             { Description = "直接复制文件大小", DefaultValueFactory = _ => 1024L };
-        var progressOption = new Option<bool>("Progress", ["--progress", "-p"])
-            { Description = "是否不显示进度.", DefaultValueFactory = _ => true };
+        var progressOption = new Option<bool>("Progress", ["--no-progress", "-np"]) { Description = "是否不显示进度." };
         var refreshTimeOption = new Option<int>("RefreshTime", ["--refresh"])
             { Description = "进度刷新时间", DefaultValueFactory = _ => 1000 };
         var overwriteOption = new Option<bool>("IsOverwrite", ["--overwrite", "-r"]) { Description = "是否覆盖已存在的文件." };
@@ -51,7 +50,7 @@ public static class Program
 
             var handler = new CreateHardLinkHandler(parse.GetRequiredValue(pathArgument), parse.GetValue(outputOption),
                 parse.GetValue(skipSizeOption), parse.GetValue(overwriteOption), logger,
-                parse.GetValue(progressOption) ? new OverwriteDisplay() : null, parse.GetValue(refreshTimeOption));
+                !parse.GetValue(progressOption) ? new OverwriteDisplay() : null, parse.GetValue(refreshTimeOption));
             CreateHardLinkResults result;
             try
             {
