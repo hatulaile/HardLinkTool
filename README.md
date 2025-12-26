@@ -31,6 +31,11 @@ progress: 无效, 目前默认启用进度显示.
 
 我使用了**Windows Api**,其他的操作系统应该没有办法运行.
 
+<h1>运行截图</h1>
+<img width="928" height="517" alt="runing" src="https://github.com/user-attachments/assets/7e7eaa40-5058-49e5-a470-56afc50dd886" />
+<img width="928" height="517" alt="complete" src="https://github.com/user-attachments/assets/63f9b435-6554-4bd8-add5-9296c4280319" />
+
+
 <h1>特别感谢</h1>
 
 1. [command-line-api](https://github.com/dotnet/command-line-api "使用了这个Nuget包,在项目里实现了命令解析")
