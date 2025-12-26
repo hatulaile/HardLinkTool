@@ -43,11 +43,11 @@ public class CreateHardLinkHandler
     private int _totalDirectory;
 
     private Stopwatch? _stopwatch;
-    
+
     private int _refreshTime;
 
-    public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L,
-        bool isOverwrite = false, ILogger? logger = null, IOverwriteDisplay? overwriteDisplays = null, int refreshTime = 1000)
+    public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L, bool isOverwrite = false,
+        IOverwriteDisplay? overwriteDisplays = null, int refreshTime = 1000, ILogger? logger = null)
     {
         Target = target;
 
@@ -60,8 +60,8 @@ public class CreateHardLinkHandler
         _logger = logger ?? new Logger();
 
         _overwriteDisplays = overwriteDisplays;
-        
-        _refreshTime= refreshTime;
+
+        _refreshTime = refreshTime;
     }
 
 
@@ -107,7 +107,7 @@ public class CreateHardLinkHandler
             if (_overwriteDisplays is not null) _ = Refresh(tokenSource.Token);
             await CreateDirectoryHardLink(Target, Output);
         }
-        
+
         await tokenSource.CancelAsync();
         _overwriteDisplays?.Repetition();
         _stopwatch.Stop();
