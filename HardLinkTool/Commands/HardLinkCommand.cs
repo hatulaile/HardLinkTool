@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using HardLinkTool.Features;
 using HardLinkTool.Features.Enums;
-using HardLinkTool.Features.Interfaces;
 using HardLinkTool.Features.LoggerDisplays;
 using HardLinkTool.Modules;
 
@@ -26,7 +25,10 @@ public class HardLinkCommand : RootCommand
 
     private readonly Option<bool> _overwriteOption = new("IsOverwrite", "--overwrite", "-r")
         { Description = "是否覆盖已存在的文件." };
-    
+
+    private readonly Option<bool> _noErrorLogFile = new("NoErrorLogFile", "--no-error-log-file", "-ne")
+        { Description = "是否不生成错误日志文件." };
+
     public HardLinkCommand() :
         base("批量生成硬链接工具.")
     {
@@ -36,14 +38,17 @@ public class HardLinkCommand : RootCommand
         this.Add(_noProgressOption);
         this.Add(_refreshTimeOption);
         this.Add(_overwriteOption);
+        this.Add(_noErrorLogFile);
 
         this.SetAction(async parse =>
         {
-            ILogger logger = new Logger().AddDebugDisplay(new ConsoleDisplay(LoggerLevel.Debug))
+            Logger logger = new Logger()
+                .AddDebugDisplay(new LocalFileDisplay(LoggerLevel.Debug, @".\debug.log"))
                 .AddInfoDisplay(new ConsoleDisplay(LoggerLevel.Info))
                 .AddWarnDisplay(new ConsoleDisplay(LoggerLevel.Warn))
-                .AddErrorDisplay(new LocalFileDisplay(LoggerLevel.Error, @".\error.log"))
                 .AddFatalDisplay(new ConsoleDisplay(LoggerLevel.Fatal));
+            if (!parse.GetValue(_noErrorLogFile))
+                logger.AddErrorDisplay(new LocalFileDisplay(LoggerLevel.Error, @".\error.log"));
 
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -80,7 +85,7 @@ public class HardLinkCommand : RootCommand
                         $"总共耗时 {result.ElapsedMilliseconds} 毫秒. \n" +
                         $"总共 {result.TotalFile + result.TotalDirectory} 个文件/文件夹. \n" +
                         $"{(result.SuccessFile == 0 ? "未能输出任何文件! " : $"输出在: {handler.Output}")} \n");
-            if (result.FailureFile > 0 || result.FailureDirectory > 0)
+            if (result.FailureFile > 0 || result.FailureDirectory > 0 || !parse.GetValue(_noErrorLogFile))
                 logger.Warn("部分任务失败, 请查看错误日志.");
 
             return (int)ErrorCode.Ok;
