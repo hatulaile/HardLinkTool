@@ -1,4 +1,5 @@
-﻿using HardLinkTool.Commands;
+﻿using System.CommandLine;
+using HardLinkTool.Commands;
 
 namespace HardLinkTool;
 
@@ -10,7 +11,11 @@ public static class Program
     {
         Console.CursorVisible = false;
         var hardLinkCommand = new HardLinkCommand();
-        int code = await hardLinkCommand.Parse(args).InvokeAsync();
+        int code = await hardLinkCommand.Parse(args).InvokeAsync(new InvocationConfiguration()
+        {
+            EnableDefaultExceptionHandler = false,
+            ProcessTerminationTimeout = TimeSpan.FromSeconds(10d)
+        });
         Console.CursorVisible = true;
         return code;
     }

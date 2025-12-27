@@ -29,6 +29,7 @@ public class HardLinkCommand : RootCommand
     private readonly Option<bool> _noErrorLogFile = new("NoErrorLogFile", "--no-error-log-file", "-ne")
         { Description = "是否不生成错误日志文件." };
 
+
     public HardLinkCommand() :
         base("批量生成硬链接工具.")
     {
@@ -40,7 +41,7 @@ public class HardLinkCommand : RootCommand
         this.Add(_overwriteOption);
         this.Add(_noErrorLogFile);
 
-        this.SetAction(async parse =>
+        this.SetAction(async (parse, token) =>
         {
             Logger logger = new Logger()
                 .AddDebugDisplay(new LocalFileDisplay(LoggerLevel.Debug, @".\debug.log"))
@@ -67,7 +68,7 @@ public class HardLinkCommand : RootCommand
             CreateHardLinkResults result;
             try
             {
-                result = await handler.RunAsync();
+                result = await handler.RunAsync(token).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -85,8 +86,15 @@ public class HardLinkCommand : RootCommand
                         $"总共耗时 {result.ElapsedMilliseconds} 毫秒. \n" +
                         $"总共 {result.TotalFile + result.TotalDirectory} 个文件/文件夹. \n" +
                         $"{(result.SuccessFile == 0 ? "未能输出任何文件! " : $"输出在: {handler.Output}")} \n");
-            if (result.FailureFile > 0 || result.FailureDirectory > 0 || !parse.GetValue(_noErrorLogFile))
+
+            if ((result.FailureFile > 0 || result.FailureDirectory > 0) && !parse.GetValue(_noErrorLogFile))
                 logger.Warn("部分任务失败, 请查看错误日志.");
+
+            if (result.IsCancel)
+            {
+                logger.Fatal("任务已中途取消, 未完全复制.");
+                return (int)ErrorCode.Cancel;
+            }
 
             return (int)ErrorCode.Ok;
         });
