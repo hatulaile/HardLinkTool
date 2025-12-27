@@ -100,12 +100,12 @@ public class CreateHardLinkHandler
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         if (IsFile(Target))
         {
-            await CreateFileHardLink(new FileInfo(Target), Output);
+            await CreateFileHardLinkAsync(new FileInfo(Target), Output);
         }
         else
         {
-            if (_overwriteDisplays is not null) _ = Refresh(tokenSource.Token);
-            await CreateDirectoryHardLink(Target, Output);
+            if (_overwriteDisplays is not null) _ = RefreshAsync(tokenSource.Token);
+            await CreateDirectoryHardLinkAsync(Target, Output);
         }
 
         await tokenSource.CancelAsync();
@@ -129,7 +129,7 @@ public class CreateHardLinkHandler
         };
     }
 
-    private async Task Refresh(CancellationToken token)
+    private async Task RefreshAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (_overwriteDisplays is null) return;
@@ -148,7 +148,7 @@ public class CreateHardLinkHandler
         }
     }
 
-    private async Task CreateDirectoryHardLink(string directory, string newDirectory)
+    private async Task CreateDirectoryHardLinkAsync(string directory, string newDirectory)
     {
         await Task.Yield();
         Interlocked.Increment(ref _totalDirectory);
@@ -181,18 +181,18 @@ public class CreateHardLinkHandler
 
         foreach (DirectoryInfo info in directoryInfos)
         {
-            tasks.Add(CreateDirectoryHardLink(info.FullName, Path.Combine(newDirectory, info.Name)));
+            tasks.Add(CreateDirectoryHardLinkAsync(info.FullName, Path.Combine(newDirectory, info.Name)));
         }
 
         foreach (var info in directoryInfo.GetFiles())
         {
-            await CreateFileHardLink(info, Path.Combine(newDirectory, info.Name));
+            await CreateFileHardLinkAsync(info, Path.Combine(newDirectory, info.Name));
         }
 
         await Task.WhenAll(tasks);
     }
 
-    private Task CreateFileHardLink(FileInfo info, string newPath)
+    private Task CreateFileHardLinkAsync(FileInfo info, string newPath)
     {
         try
         {
