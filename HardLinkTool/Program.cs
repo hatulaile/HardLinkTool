@@ -8,7 +8,10 @@ public static class Program
 
     public static async Task<int> Main(string[] args)
     {
+        Console.CursorVisible = false;
         var hardLinkCommand = new HardLinkCommand();
-        return await hardLinkCommand.Parse(args).InvokeAsync();
+        int code = await hardLinkCommand.Parse(args).InvokeAsync();
+        Console.CursorVisible = true;
+        return code;
     }
 }
