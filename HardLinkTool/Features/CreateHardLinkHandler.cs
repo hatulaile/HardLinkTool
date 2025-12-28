@@ -190,12 +190,13 @@ public class CreateHardLinkHandler
 
         var directoryInfo = new DirectoryInfo(directory);
         DirectoryInfo[] directoryInfos = directoryInfo.GetDirectories();
-        List<Task> tasks = new List<Task>(directoryInfos.Length);
+        Task[] tasks = new Task[directoryInfos.Length];
 
+        int index = 0;
         foreach (DirectoryInfo info in directoryInfos)
         {
             token.ThrowIfCancellationRequested();
-            tasks.Add(CreateDirectoryHardLinkAsync(info.FullName, Path.Combine(newDirectory, info.Name), token));
+            tasks[index++] = CreateDirectoryHardLinkAsync(info.FullName, Path.Combine(newDirectory, info.Name), token);
         }
 
         foreach (var info in directoryInfo.GetFiles())
