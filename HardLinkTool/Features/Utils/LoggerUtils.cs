@@ -1,21 +1,10 @@
 ﻿using HardLinkTool.Features.Enums;
+using HardLinkTool.Features.Loggers.LoggerProcessors;
 
 namespace HardLinkTool.Features.Utils;
 
 public static class LoggerUtils
 {
-    private static Lock _lock = new();
-
-    public static void Raw(string? message, ConsoleColor color)
-    {
-        lock (_lock)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ResetColor();
-        }
-    }
-
     public static ConsoleColor GetColor(LoggerLevel level)
     {
         return level switch
@@ -40,5 +29,14 @@ public static class LoggerUtils
             LoggerLevel.Fatal => "FATAL",
             _ => "Unknown"
         };
+    }
+    
+    internal static async Task FlushAllLoggerProcessorAsync()
+    {
+        if (ConsoleLoggerProcessor.Instance is not null)
+            await ConsoleLoggerProcessor.Instance.FlushAsync();
+
+        foreach (var fileLoggerProcessor in FileLoggerProcessor.Instances)
+            await fileLoggerProcessor.Value.FlushAsync();
     }
 }

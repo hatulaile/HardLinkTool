@@ -1,8 +1,6 @@
 ﻿using HardLinkTool.Features.Interfaces;
-using HardLinkTool.Features.LoggerDisplays;
-using HardLinkTool.Features.Utils;
 
-namespace HardLinkTool.Features;
+namespace HardLinkTool.Features.Loggers;
 
 public class Logger : ILogger
 {

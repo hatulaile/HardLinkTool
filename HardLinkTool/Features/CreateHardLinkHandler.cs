@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using HardLinkTool.Features.Interfaces;
+using HardLinkTool.Features.Loggers;
 using HardLinkTool.Modules;
 using static HardLinkTool.Features.Utils.CreateHardLinkUtils;
 

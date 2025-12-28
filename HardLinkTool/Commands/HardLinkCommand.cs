@@ -2,7 +2,9 @@
 using System.Runtime.InteropServices;
 using HardLinkTool.Features;
 using HardLinkTool.Features.Enums;
-using HardLinkTool.Features.LoggerDisplays;
+using HardLinkTool.Features.Loggers;
+using HardLinkTool.Features.Loggers.LoggerDisplays;
+using HardLinkTool.Features.Utils;
 using HardLinkTool.Modules;
 
 namespace HardLinkTool.Commands;
@@ -72,8 +74,9 @@ public class HardLinkCommand : RootCommand
             }
             catch (Exception e)
             {
-                logger.Fatal($"出现错误: 根目录下已输出错误日志 \nMessage: {e.Message}");
                 logger.Error($"\n{e}");
+                logger.Fatal($"出现错误: 根目录下已输出错误日志 \nMessage: {e.Message}");
+                await LoggerUtils.FlushAllLoggerProcessorAsync();
                 return (int)ErrorCode.Error;
             }
 
@@ -93,9 +96,11 @@ public class HardLinkCommand : RootCommand
             if (result.IsCancel)
             {
                 logger.Fatal("任务已中途取消, 未完全复制.");
+                await LoggerUtils.FlushAllLoggerProcessorAsync();
                 return (int)ErrorCode.Cancel;
             }
 
+            await LoggerUtils.FlushAllLoggerProcessorAsync();
             return (int)ErrorCode.Ok;
         });
     }

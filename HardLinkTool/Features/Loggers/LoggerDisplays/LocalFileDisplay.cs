@@ -1,8 +1,10 @@
 ﻿using HardLinkTool.Features.Enums;
 using HardLinkTool.Features.Interfaces;
+using HardLinkTool.Features.Loggers.LoggerProcessors;
+using HardLinkTool.Features.Loggers.LoggerProcessors.Modules;
 using HardLinkTool.Features.Utils;
 
-namespace HardLinkTool.Features.LoggerDisplays;
+namespace HardLinkTool.Features.Loggers.LoggerDisplays;
 
 public class LocalFileDisplay : ILoggerDisplay
 {
@@ -17,7 +19,8 @@ public class LocalFileDisplay : ILoggerDisplay
 
     public void Log(object message)
     {
-        File.AppendAllText(Path.GetFullPath(_logFilePath),
-            $"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}]{message}\n");
+        string path = Path.GetFullPath(_logFilePath);
+        FileLoggerProcessor.CreateOrGetInstance(path).AddLog(
+            new FileLoggerEntry($"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}]{message}\n"));
     }
 }
