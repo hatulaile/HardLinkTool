@@ -5,7 +5,7 @@
 <h1>用法</h1>
 
 ```
-./HardLinkTool.exe <path> [--output/-o] <output path> [--skipSize/-s] <1024> [--overwrite/-r] [--refresh] <1000> [--progress/-p]
+./HardLinkTool.exe <path> [--output/-o] <output path> [--skipSize/-s] <1024> [--overwrite/-r] [--refresh] <1000> [--no-progress/-np] [--no-error-log-file/-ne]
 ```
 
 <h1>参数解释</h1>
@@ -21,7 +21,9 @@ overwrite: 如果目录里存在 output 目录/文件,是否覆盖.
 
 refresh: 进度显示的刷新时间, 如果是关闭进度显示则无效. 请不要填写负数.
 
-progress: 无效, 目前默认启用进度显示.
+no-progress: 是否不启用进度显示.
+
+no-error-log-file: 是否不输出错误日志.
 
 除了 path 皆为可选项.
 ````
