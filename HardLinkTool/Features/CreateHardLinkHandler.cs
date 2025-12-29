@@ -1,117 +1,99 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Threading.Channels;
 using HardLinkTool.Features.Interfaces;
 using HardLinkTool.Features.Loggers;
 using HardLinkTool.Modules;
+using Microsoft.VisualBasic.FileIO;
 using static HardLinkTool.Features.Utils.CreateHardLinkUtils;
 
 namespace HardLinkTool.Features;
 
-public class CreateHardLinkHandler
+public sealed class CreateHardLinkHandler
 {
-    public string Target { get; private set; }
-
-    public string? Output { get; private set; }
-
-    public long SkipSize { get; private set; }
-
-    public bool IsOverwrite { get; private set; }
-
-    private ILogger _logger;
-
-    private IOverwriteDisplay? _overwriteDisplays;
-
-    private int _successFile;
-
-    private int _failureFile;
-
-    private int _skipFile;
-
-    private int _repetitionFile;
-
-    private int _overwriteFile;
-
-    private int _totalFile;
-
-    private int _newDirectory;
-
-    private int _failureDirectory;
-
-    private int _repetitionDirectory;
-
-    private int _overwriteDirectory;
-
-    private int _totalDirectory;
-
     private Stopwatch? _stopwatch;
 
-    private int _refreshTime;
+    private readonly CreateHardLinkOption _option;
 
-    public CreateHardLinkHandler(string target, string? output, long skipSize = 1024L, bool isOverwrite = false,
+    private readonly CreateHardLinkResults _results;
+
+    private readonly ILogger _logger;
+
+    private readonly IOverwriteDisplay? _overwriteDisplays;
+
+    private readonly int _refreshTime;
+
+    private readonly Channel<FileEntry> _fileChannel;
+
+    private readonly Channel<DirectoryEntry> _directoryChannel;
+
+    private Task[]? _directoryProcessor;
+    private Task[]? _fileProcessor;
+
+    public CreateHardLinkHandler(CreateHardLinkOption option,
         IOverwriteDisplay? overwriteDisplays = null, int refreshTime = 1000, ILogger? logger = null)
     {
-        Target = target;
-
-        Output = output;
-
-        SkipSize = skipSize;
-
-        IsOverwrite = isOverwrite;
+        _option = option;
 
         _logger = logger ?? new Logger();
 
         _overwriteDisplays = overwriteDisplays;
 
         _refreshTime = refreshTime;
+
+        _results = new CreateHardLinkResults();
+
+        _fileChannel = Channel.CreateBounded<FileEntry>(new BoundedChannelOptions(128)
+        {
+            SingleReader = false,
+            SingleWriter = false,
+            FullMode = BoundedChannelFullMode.Wait
+        });
+
+        _directoryChannel = Channel.CreateBounded<DirectoryEntry>(new BoundedChannelOptions(64)
+        {
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.Wait
+        });
     }
 
-
-    [MemberNotNull(nameof(Output), nameof(_stopwatch))]
     public async Task<CreateHardLinkResults> RunAsync(CancellationToken token)
     {
-        token.ThrowIfCancellationRequested();
-        Target = Path.GetFullPath(ProcessPathPostfix(Target));
-        if (!Path.Exists(Target))
+        if (token.IsCancellationRequested)
         {
-            throw new ArgumentException("目标不存在.");
-        }
-
-        Output ??= GetDefaultOutput(Target, IsFile(Target), Program.HAND_LINK_POSTFIX);
-        Output = Path.GetFullPath(ProcessPathPostfix(Output));
-
-        if (Target == Output)
-        {
-            throw new ArgumentException("目标不能与新位置相同.");
-        }
-
-        if (IsEitherParent(Target, Output))
-        {
-            throw new Exception("不能将新位置设置为与目标嵌套的关系!!!! \n" +
-                                "如果是未设置输出目录请截图发送 issue!!!! \n" +
-                                $"Target :{Target} \n" +
-                                $"Output :{Output} \n");
-        }
-
-        if (Directory.Exists(Output))
-        {
-            throw new ArgumentException("为了防止意外,不能覆盖文件夹! \n" +
-                                        $"请手动删除 {Output}! ");
+            _results.IsCancel = true;
+            return _results;
         }
 
         bool isCancel = false;
         var refreshToken = CancellationTokenSource.CreateLinkedTokenSource(token);
+        Task? progressDisplayTask = null;
         _stopwatch = Stopwatch.StartNew();
         try
         {
-            if (IsFile(Target))
+            if (IsFile(_option.Target))
             {
-                await CreateFileHardLinkAsync(new FileInfo(Target), Output, token);
+                await CreateFileHardLinkAsync(new FileInfo(_option.Target), _option.Output, token);
             }
             else
             {
                 if (_overwriteDisplays is not null)
-                    _ = RefreshAsync(refreshToken.Token);
-                await CreateDirectoryHardLinkAsync(Target, Output, token);
+                    progressDisplayTask = RefreshAsync(refreshToken.Token);
+
+                int directoryProcessorCount = Environment.ProcessorCount / 4;
+                _directoryProcessor = new Task[directoryProcessorCount];
+                for (int i = 0; i < directoryProcessorCount; i++)
+                    _directoryProcessor[i] = ProcessDirectoryEntriesAsync(token);
+
+                int fileProcessorCount = Environment.ProcessorCount;
+                _fileProcessor = new Task[fileProcessorCount];
+                for (int i = 0; i < fileProcessorCount; i++)
+                    _fileProcessor[i] = ProcessFileEntriesAsync(token);
+
+                await ProducesDirectoryEntriesAsync(_option.Target, _option.Output, token);
+                _directoryChannel.Writer.Complete();
+                await Task.WhenAll(_directoryProcessor).WaitAsync(token);
+                _fileChannel.Writer.Complete();
+                await Task.WhenAll(_fileProcessor).WaitAsync(token);
             }
         }
         catch (OperationCanceledException)
@@ -120,92 +102,51 @@ public class CreateHardLinkHandler
         }
 
         await refreshToken.CancelAsync();
-        _overwriteDisplays?.Repetition();
+        if (progressDisplayTask is not null)
+            await progressDisplayTask;
+
         _stopwatch.Stop();
 
-        return new CreateHardLinkResults
-        {
-            IsCancel = isCancel,
-            SuccessFile = _successFile,
-            FailureFile = _failureFile,
-            SkipFile = _skipFile,
-            RepetitionFile = _repetitionFile,
-            OverwriteFile = _overwriteFile,
-            TotalFile = _totalFile,
-            NewDirectory = _newDirectory,
-            FailureDirectory = _failureDirectory,
-            RepetitionDirectory = _repetitionDirectory,
-            OverwriteDirectory = _overwriteDirectory,
-            TotalDirectory = _totalDirectory,
-            ElapsedMilliseconds = _stopwatch.ElapsedMilliseconds,
-        };
+        _results.ElapsedMilliseconds = _stopwatch.ElapsedMilliseconds;
+        _results.IsCancel = isCancel;
+        return _results;
     }
 
-    private async Task RefreshAsync(CancellationToken token)
+    private async Task ProducesDirectoryEntriesAsync(string target, string output, CancellationToken token)
     {
-        if (_overwriteDisplays is null) return;
-        await Task.Yield();
-        while (true)
+        await _directoryChannel.Writer.WriteAsync(new DirectoryEntry(new DirectoryInfo(target), output), token);
+        foreach (var entry in Directory.EnumerateDirectories(target))
         {
-            token.ThrowIfCancellationRequested();
-            _overwriteDisplays.Overwrite($"成功 {_successFile} 个文件. " + $"失败 {_failureFile} 个文件. \n" +
-                                         $"直接复制 {_skipFile} 个文件. 已存在 {_repetitionFile} 个文件. 覆盖 {_overwriteFile} 个文件. \n" +
-                                         $"总共 {_totalFile} 个文件. \n\n" +
-                                         $"新建 {_newDirectory} 个文件夹. " + $"无法新建 {_failureDirectory} 个文件夹. \n" +
-                                         $"已存在 {_repetitionDirectory} 个文件夹. 覆盖 {_overwriteDirectory} 个文件夹. \n" +
-                                         $"总共 {_totalDirectory} 个文件夹. \n\n" +
-                                         $"总共耗时 {_stopwatch?.ElapsedMilliseconds ?? -1L} 毫秒. \n" +
-                                         $"总共 {_totalFile + _totalDirectory} 个文件/文件夹. \n");
-            await Task.Delay(_refreshTime, token);
+            DirectoryInfo info = new DirectoryInfo(entry);
+            await ProducesDirectoryEntriesAsync(entry, Path.Combine(output, info.Name), token);
         }
     }
 
-    private async Task CreateDirectoryHardLinkAsync(string directory, string newDirectory, CancellationToken token)
+    private async Task ProcessDirectoryEntriesAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        await Task.Yield();
-        Interlocked.Increment(ref _totalDirectory);
-        if (File.Exists(newDirectory))
+        await foreach (var entry in _directoryChannel.Reader.ReadAllAsync(token))
         {
-            if (!IsOverwrite)
-            {
-                Interlocked.Increment(ref _failureDirectory);
-                _logger.Error($"试图新建文件夹 {directory} 失败! \n{newDirectory} 存在文件.");
-                return;
-            }
-
-            Interlocked.Increment(ref _overwriteDirectory);
-            File.Delete(newDirectory);
-        }
-
-        if (!Directory.Exists(newDirectory))
-        {
-            Directory.CreateDirectory(newDirectory);
-            Interlocked.Increment(ref _newDirectory);
-        }
-        else
-        {
-            Interlocked.Increment(ref _repetitionDirectory);
-        }
-
-        var directoryInfo = new DirectoryInfo(directory);
-        DirectoryInfo[] directoryInfos = directoryInfo.GetDirectories();
-        Task[] tasks = new Task[directoryInfos.Length];
-
-        int index = 0;
-        foreach (DirectoryInfo info in directoryInfos)
-        {
-            token.ThrowIfCancellationRequested();
-            tasks[index++] = CreateDirectoryHardLinkAsync(info.FullName, Path.Combine(newDirectory, info.Name), token);
-        }
-
-        foreach (var info in directoryInfo.GetFiles())
-        {
-            token.ThrowIfCancellationRequested();
-            string newPath = Path.Combine(newDirectory, info.Name);
             try
             {
-                await CreateFileHardLinkAsync(info, newPath, token);
+                Interlocked.Increment(ref _results.TotalDirectory);
+                DirectoryInfo info = new DirectoryInfo(entry.Output);
+                if (info.Exists)
+                {
+                    Interlocked.Increment(ref _results.RepetitionDirectory);
+                }
+                else
+                {
+                    Interlocked.Increment(ref _results.NewDirectory);
+                    info.Create();
+                }
+
+                foreach (string file in Directory.EnumerateFiles(entry.Target.FullName))
+                {
+                    var fileInfo = new FileInfo(file);
+                    await _fileChannel.Writer.WriteAsync(
+                        new FileEntry(fileInfo, Path.Combine(entry.Output, fileInfo.Name)), token);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -213,49 +154,106 @@ public class CreateHardLinkHandler
             }
             catch (Exception e)
             {
-                Interlocked.Increment(ref _failureFile);
-                _logger.Error($"{info.FullName} 试图创建硬链接失败, 位置: {newPath}. \n错误信息: {e}");
+                _logger.Error($"创建目录 {entry.Target.FullName} -> {entry.Output} 失败: \n{e}");
+                Interlocked.Increment(ref _results.FailureDirectory);
             }
         }
-
-        if (Environment.CurrentManagedThreadId == 1)
-            Console.WriteLine();
-        await Task.WhenAll(tasks).WaitAsync(token);
     }
 
-    private Task CreateFileHardLinkAsync(FileInfo info, string newPath, CancellationToken token)
+    private async Task ProcessFileEntriesAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        Interlocked.Increment(ref _totalFile);
-
-        if (SkipSize > 0L && SkipSize > info.Length)
+        await foreach (var entry in _fileChannel.Reader.ReadAllAsync(token))
         {
-            File.Copy(info.FullName, newPath, IsOverwrite);
-            Interlocked.Increment(ref _skipFile);
-            return Task.CompletedTask;
-        }
-
-        if (File.Exists(newPath))
-        {
-            if (!IsOverwrite)
+            try
             {
-                Interlocked.Increment(ref _repetitionFile);
+                await CreateFileHardLinkAsync(entry.Target, entry.Output, token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"创建文件 {entry.Target.FullName} -> {entry.Output} 硬链接失败: \n{e}");
+            }
+        }
+    }
+
+    private Task CreateFileHardLinkAsync(FileInfo info, string newFullPath, CancellationToken token)
+    {
+        try
+        {
+            if (token.IsCancellationRequested)
+                return Task.FromCanceled(token);
+
+            Interlocked.Increment(ref _results.TotalFile);
+            if (_option.SkipSize > info.Length)
+            {
+                FileSystem.CopyFile(info.FullName, newFullPath, _option.IsOverwrite);
+                Interlocked.Increment(ref _results.SkipFile);
                 return Task.CompletedTask;
             }
 
-            Interlocked.Increment(ref _overwriteFile);
-            File.Delete(newPath);
-        }
+            if (File.Exists(newFullPath))
+            {
+                if (!_option.IsOverwrite)
+                {
+                    Interlocked.Increment(ref _results.RepetitionFile);
+                    return Task.CompletedTask;
+                }
 
-        if (CreateHardLink(info.FullName, newPath))
-        {
-            Interlocked.Increment(ref _successFile);
-        }
-        else
-        {
-            throw new IOException(GetLastErrorMessage());
-        }
+                Interlocked.Increment(ref _results.OverwriteFile);
+                FileSystem.DeleteFile(newFullPath);
+            }
 
-        return Task.CompletedTask;
+            if (TryCreateHardLink(info.FullName, newFullPath))
+            {
+                Interlocked.Increment(ref _results.SuccessFile);
+            }
+            else
+            {
+                _logger.Error($"创建 {info.FullName} 至 {newFullPath} 硬链接失败");
+                Interlocked.Increment(ref _results.FailureFile);
+            }
+
+            return Task.CompletedTask;
+        }
+        catch (Exception e)
+        {
+            Interlocked.Increment(ref _results.FailureFile);
+            return Task.FromException(e);
+        }
+    }
+
+    private async Task RefreshAsync(CancellationToken token)
+    {
+        try
+        {
+            if (_overwriteDisplays is null) return;
+            while (!token.IsCancellationRequested)
+            {
+                _overwriteDisplays.Overwrite
+                (
+                    $"成功 {_results.SuccessFile} 个文件. " + $"失败 {_results.FailureFile} 个文件. \n" +
+                    $"直接复制 {_results.SkipFile} 个文件. 已存在 {_results.RepetitionFile} 个文件. 覆盖 {_results.OverwriteFile} 个文件. \n" +
+                    $"总共 {_results.TotalFile} 个文件. \n\n" +
+                    $"新建 {_results.NewDirectory} 个文件夹. " + $"无法新建 {_results.FailureDirectory} 个文件夹. \n" +
+                    $"已存在 {_results.RepetitionDirectory} 个文件夹. 覆盖 {_results.OverwriteDirectory} 个文件夹. \n" +
+                    $"总共 {_results.TotalDirectory} 个文件夹. \n\n" +
+                    $"总共耗时 {_stopwatch?.ElapsedMilliseconds ?? -1L} 毫秒. \n" +
+                    $"总共 {_results.TotalFile + _results.TotalDirectory} 个文件/文件夹. \n"
+                );
+                await Task.Delay(_refreshTime, token).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore
+        }
+        finally
+        {
+            _overwriteDisplays?.Repetition();
+        }
     }
 }

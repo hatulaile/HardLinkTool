@@ -2,11 +2,11 @@
 
 namespace HardLinkTool.Features.Loggers.LoggerProcessors;
 
-public class ConsoleLoggerProcessor : LoggerProcessorBase<ConsoleLoggerEntry>
+public sealed class ConsoleLoggerProcessor : LoggerProcessorBase<ConsoleLoggerEntry>
 {
     internal static ConsoleLoggerProcessor? Instance;
 
-    protected ConsoleLoggerProcessor()
+    private ConsoleLoggerProcessor()
     {
     }
 

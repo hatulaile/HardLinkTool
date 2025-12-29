@@ -9,9 +9,9 @@ using HardLinkTool.Modules;
 
 namespace HardLinkTool.Commands;
 
-public class HardLinkCommand : RootCommand
+public sealed class HardLinkCommand : RootCommand
 {
-    private readonly Argument<string> _pathArgument = new("Input") { Description = "源文件/文件夹路径." };
+    private readonly Argument<string> _pathArgument = new("Target") { Description = "源文件/文件夹路径." };
 
     private readonly Option<string?> _outputOption = new("Output", "--output", "-o")
         { Description = "输出文件路径." };
@@ -59,13 +59,38 @@ public class HardLinkCommand : RootCommand
                 return (int)ErrorCode.NotSupported;
             }
 
-            string path = parse.GetRequiredValue(_pathArgument);
-            string? outputPath = parse.GetValue(_outputOption);
+            string path = Path.GetFullPath(parse.GetRequiredValue(_pathArgument));
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                logger.Fatal($"输入文件不存在: {path}");
+                return (int)ErrorCode.Error;
+            }
+
+            string output = ParseOutput(path, parse.GetValue(_outputOption));
+            if (output == path)
+            {
+                logger.Fatal($"输出位置与输入文件相同: {path} -> {output}");
+                return (int)ErrorCode.Error;
+            }
+
+            if (CreateHardLinkUtils.IsEitherParent(path, path))
+            {
+                logger.Fatal("不能将新位置设置为与目标嵌套的关系!!!! \n" +
+                             "如果是未设置输出目录请截图发送 issue!!!! \n" +
+                             $"Target :{path} \n" +
+                             $"Output :{path} \n");
+            }
+
             long skipSize = parse.GetValue(_skipSizeOption);
+            if (skipSize < 0) skipSize = 0;
+
             bool isOverwrite = parse.GetValue(_overwriteOption);
             OverwriteDisplay? overwriteDisplay = !parse.GetValue(_noProgressOption) ? new OverwriteDisplay() : null;
             int refreshTime = parse.GetValue(_refreshTimeOption);
-            var handler = new CreateHardLinkHandler(path, outputPath, skipSize, isOverwrite,
+
+
+            var handler = new CreateHardLinkHandler(
+                new CreateHardLinkOption(path, output, skipSize, isOverwrite),
                 overwriteDisplay, refreshTime, logger);
             CreateHardLinkResults result;
             try
@@ -76,7 +101,6 @@ public class HardLinkCommand : RootCommand
             {
                 logger.Error($"\n{e}");
                 logger.Fatal($"出现错误: 根目录下已输出错误日志 \nMessage: {e.Message}");
-                await LoggerUtils.FlushAllLoggerProcessorAsync();
                 return (int)ErrorCode.Error;
             }
 
@@ -88,7 +112,7 @@ public class HardLinkCommand : RootCommand
                         $"总共 {result.TotalDirectory} 个文件夹. \n\n" +
                         $"总共耗时 {result.ElapsedMilliseconds} 毫秒. \n" +
                         $"总共 {result.TotalFile + result.TotalDirectory} 个文件/文件夹. \n" +
-                        $"{(result.SuccessFile == 0 ? "未能输出任何文件! " : $"输出在: {handler.Output}")} \n");
+                        $"{(result.SuccessFile == 0 ? "未能输出任何文件! " : $"输出在: {output}")} \n");
 
             if ((result.FailureFile > 0 || result.FailureDirectory > 0) && !parse.GetValue(_noErrorLogFile))
                 logger.Warn("部分任务失败, 请查看错误日志.");
@@ -96,12 +120,18 @@ public class HardLinkCommand : RootCommand
             if (result.IsCancel)
             {
                 logger.Fatal("任务已中途取消, 未完全复制.");
-                await LoggerUtils.FlushAllLoggerProcessorAsync();
                 return (int)ErrorCode.Cancel;
             }
 
-            await LoggerUtils.FlushAllLoggerProcessorAsync();
             return (int)ErrorCode.Ok;
         });
+    }
+
+    private string ParseOutput(string path, string? outPut)
+    {
+        if (outPut is null)
+            return CreateHardLinkUtils.GetDefaultOutput(path, CreateHardLinkUtils.IsFile(path),
+                Program.HAND_LINK_POSTFIX);
+        else return Path.GetFullPath(outPut);
     }
 }

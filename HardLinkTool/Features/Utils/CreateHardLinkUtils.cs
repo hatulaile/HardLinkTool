@@ -12,8 +12,10 @@ public static partial class CreateHardLinkUtils
         return path.TrimEnd(Postfix);
     }
 
-    public static bool CreateHardLink(string fileName, string newFileName) =>
-        CreateHardLinkW(newFileName, fileName, IntPtr.Zero);
+    public static bool TryCreateHardLink(string fileName, string newFileName)
+    {
+        return CreateHardLinkW(newFileName, fileName, IntPtr.Zero);
+    }
 
     public static bool IsFile(string path) =>
         Path.Exists(path) && !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
@@ -65,19 +67,4 @@ public static partial class CreateHardLinkUtils
         string lpExistingFileName,
         IntPtr lpSecurityAttributes
     );
-
-    public static string GetLastErrorMessage()
-    {
-        StringBuilder lpBuffer = new StringBuilder(260);
-        FormatMessage(0x1000 | 0x200, IntPtr.Zero, GetLastError(), 0, lpBuffer, 260, IntPtr.Zero);
-        return lpBuffer.ToString();
-    }
-
-    [LibraryImport("kernel32.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvStdcall)])]
-    private static partial uint GetLastError();
-
-    [DllImport("Kernel32.dll", CharSet = CharSet.Unicode)]
-    private static extern int FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId,
-        [Out] StringBuilder lpBuffer, uint nSize, IntPtr arguments);
 }

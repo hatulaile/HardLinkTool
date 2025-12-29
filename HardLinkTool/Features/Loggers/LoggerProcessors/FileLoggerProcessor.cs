@@ -5,7 +5,7 @@ using HardLinkTool.Features.Loggers.LoggerProcessors.Modules;
 
 namespace HardLinkTool.Features.Loggers.LoggerProcessors;
 
-public class FileLoggerProcessor : LoggerProcessorBase<FileLoggerEntry>
+public sealed class FileLoggerProcessor : LoggerProcessorBase<FileLoggerEntry>
 {
     internal static readonly Dictionary<string, FileLoggerProcessor> Instances = new();
     private static Logger? _logger;

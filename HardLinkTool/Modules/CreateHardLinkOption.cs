@@ -1,12 +1,20 @@
 ﻿namespace HardLinkTool.Modules;
 
-public class CreateHardLinkOption
+public readonly struct CreateHardLinkOption
 {
-    public required string Input { get; init; }
+    public CreateHardLinkOption(string target, string output, long skipSize, bool isOverwrite)
+    {
+        Target = target;
+        Output = output;
+        SkipSize = skipSize;
+        IsOverwrite = isOverwrite;
+    }
 
-    public string? Output { get; init; }
+    public readonly string Target;
 
-    public long SkipSize { get; init; }
+    public readonly string Output;
 
-    public bool IsOverwrite { get; init; }
+    public readonly long SkipSize;
+
+    public readonly bool IsOverwrite;
 }
