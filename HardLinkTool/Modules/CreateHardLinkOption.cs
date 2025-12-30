@@ -1,5 +1,8 @@
-﻿namespace HardLinkTool.Modules;
+﻿using System.Runtime.InteropServices;
 
+namespace HardLinkTool.Modules;
+
+[StructLayout(LayoutKind.Auto)]
 public readonly struct CreateHardLinkOption
 {
     public CreateHardLinkOption(string target, string output, long skipSize, bool isOverwrite)

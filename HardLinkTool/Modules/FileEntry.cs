@@ -1,5 +1,8 @@
-﻿namespace HardLinkTool.Modules;
+﻿using System.Runtime.InteropServices;
 
+namespace HardLinkTool.Modules;
+
+[StructLayout(LayoutKind.Auto)]
 public readonly struct FileEntry
 {
     public FileEntry(FileInfo target, string output)
@@ -7,8 +10,8 @@ public readonly struct FileEntry
         Target = target;
         Output = output;
     }
-    
+
     public readonly FileInfo Target;
-    
+
     public readonly string Output;
 }

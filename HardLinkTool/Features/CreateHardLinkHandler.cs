@@ -29,6 +29,26 @@ public sealed class CreateHardLinkHandler
     private Task[]? _directoryProcessor;
     private Task[]? _fileProcessor;
 
+    private readonly EnumerationOptions _processDirectoryEntriesEnumerationOptions = new()
+    {
+        IgnoreInaccessible = true,
+        AttributesToSkip = FileAttributes.System | FileAttributes.Hidden,
+        RecurseSubdirectories = false,
+        MatchType = MatchType.Simple,
+        ReturnSpecialDirectories = false
+    };
+
+    private readonly EnumerationOptions _processFileEntriesEnumerationOptions = new()
+    {
+        IgnoreInaccessible = true,
+        AttributesToSkip = FileAttributes.System | FileAttributes.Hidden,
+        RecurseSubdirectories = false,
+        MatchType = MatchType.Simple,
+        ReturnSpecialDirectories = false
+    };
+
+    private const string SEARCH_PATTERN = "*";
+
     public CreateHardLinkHandler(CreateHardLinkOption option,
         IOverwriteDisplay? overwriteDisplays = null, int refreshTime = 1000, ILogger? logger = null)
     {
@@ -72,7 +92,8 @@ public sealed class CreateHardLinkHandler
         {
             if (IsFile(_option.Target))
             {
-                await CreateFileHardLinkAsync(new FileInfo(_option.Target), _option.Output, token);
+                await CreateFileHardLinkAsync(new FileInfo(_option.Target), _option.Output, token)
+                    .ConfigureAwait(false);
             }
             else
             {
@@ -84,16 +105,17 @@ public sealed class CreateHardLinkHandler
                 for (int i = 0; i < directoryProcessorCount; i++)
                     _directoryProcessor[i] = ProcessDirectoryEntriesAsync(token);
 
-                int fileProcessorCount = Environment.ProcessorCount;
+                int fileProcessorCount = Environment.ProcessorCount - directoryProcessorCount;
                 _fileProcessor = new Task[fileProcessorCount];
                 for (int i = 0; i < fileProcessorCount; i++)
                     _fileProcessor[i] = ProcessFileEntriesAsync(token);
 
-                await ProducesDirectoryEntriesAsync(_option.Target, _option.Output, token);
+                await ProducesDirectoryEntriesAsync(new DirectoryInfo(_option.Target), _option.Output, token)
+                    .ConfigureAwait(false);
                 _directoryChannel.Writer.Complete();
-                await Task.WhenAll(_directoryProcessor).WaitAsync(token);
+                await Task.WhenAll(_directoryProcessor).WaitAsync(token).ConfigureAwait(false);
                 _fileChannel.Writer.Complete();
-                await Task.WhenAll(_fileProcessor).WaitAsync(token);
+                await Task.WhenAll(_fileProcessor).WaitAsync(token).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException)
@@ -101,9 +123,9 @@ public sealed class CreateHardLinkHandler
             isCancel = true;
         }
 
-        await refreshToken.CancelAsync();
+        await refreshToken.CancelAsync().ConfigureAwait(false);
         if (progressDisplayTask is not null)
-            await progressDisplayTask;
+            await progressDisplayTask.ConfigureAwait(false);
 
         _stopwatch.Stop();
 
@@ -112,20 +134,19 @@ public sealed class CreateHardLinkHandler
         return _results;
     }
 
-    private async Task ProducesDirectoryEntriesAsync(string target, string output, CancellationToken token)
+    private async Task ProducesDirectoryEntriesAsync(DirectoryInfo target, string output, CancellationToken token)
     {
-        await _directoryChannel.Writer.WriteAsync(new DirectoryEntry(new DirectoryInfo(target), output), token);
-        foreach (var entry in Directory.EnumerateDirectories(target))
+        await _directoryChannel.Writer.WriteAsync(new DirectoryEntry(target, output), token).ConfigureAwait(false);
+        foreach (var info in target.EnumerateDirectories(SEARCH_PATTERN, _processDirectoryEntriesEnumerationOptions))
         {
-            DirectoryInfo info = new DirectoryInfo(entry);
-            await ProducesDirectoryEntriesAsync(entry, Path.Combine(output, info.Name), token);
+            await ProducesDirectoryEntriesAsync(info, Path.Combine(output, info.Name), token).ConfigureAwait(false);
         }
     }
 
     private async Task ProcessDirectoryEntriesAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        await foreach (var entry in _directoryChannel.Reader.ReadAllAsync(token))
+        await foreach (var entry in _directoryChannel.Reader.ReadAllAsync(token).ConfigureAwait(false))
         {
             try
             {
@@ -141,11 +162,12 @@ public sealed class CreateHardLinkHandler
                     info.Create();
                 }
 
-                foreach (string file in Directory.EnumerateFiles(entry.Target.FullName))
+                foreach (FileInfo fileInfo in entry.Target.EnumerateFiles(SEARCH_PATTERN,
+                             _processFileEntriesEnumerationOptions))
                 {
-                    var fileInfo = new FileInfo(file);
                     await _fileChannel.Writer.WriteAsync(
-                        new FileEntry(fileInfo, Path.Combine(entry.Output, fileInfo.Name)), token);
+                            new FileEntry(fileInfo, Path.Combine(entry.Output, fileInfo.Name)), token)
+                        .ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException)
@@ -163,7 +185,7 @@ public sealed class CreateHardLinkHandler
     private async Task ProcessFileEntriesAsync(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        await foreach (var entry in _fileChannel.Reader.ReadAllAsync(token))
+        await foreach (var entry in _fileChannel.Reader.ReadAllAsync(token).ConfigureAwait(false))
         {
             try
             {

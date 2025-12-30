@@ -60,11 +60,11 @@ public static partial class CreateHardLinkUtils
         return $"{ProcessPathPostfix(input)}{handLinkPostfix}";
     }
 
-    [LibraryImport("Kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    [DllImport("Kernel32.dll", EntryPoint = "CreateHardLinkW", 
+        CallingConvention = CallingConvention.Winapi, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool CreateHardLinkW(
-        string lpFileName,
-        string lpExistingFileName,
-        IntPtr lpSecurityAttributes
-    );
+    static extern bool CreateHardLinkW(
+        [MarshalAs(UnmanagedType.LPWStr)] string lpFileName,
+        [MarshalAs(UnmanagedType.LPWStr)] string lpExistingFileName,
+        IntPtr lpSecurityAttributes);
 }
