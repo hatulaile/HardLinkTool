@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Threading.Channels;
 using HardLinkTool.Features.Interfaces;
 using HardLinkTool.Features.Loggers;
@@ -136,10 +136,20 @@ public sealed class CreateHardLinkHandler
 
     private async Task ProducesDirectoryEntriesAsync(DirectoryInfo target, string output, CancellationToken token)
     {
-        await _directoryChannel.Writer.WriteAsync(new DirectoryEntry(target, output), token).ConfigureAwait(false);
-        foreach (var info in target.EnumerateDirectories(SEARCH_PATTERN, _processDirectoryEntriesEnumerationOptions))
+        var queue = new Queue<DirectoryEntry>(32);
+        queue.Enqueue(new DirectoryEntry(target, output));
+
+        while (queue.Count > 0)
         {
-            await ProducesDirectoryEntriesAsync(info, Path.Combine(output, info.Name), token).ConfigureAwait(false);
+            DirectoryEntry entry = queue.Dequeue();
+            await _directoryChannel.Writer.WriteAsync(entry, token).ConfigureAwait(false);
+
+            foreach (var info in entry.Target.EnumerateDirectories(SEARCH_PATTERN,
+                         _processDirectoryEntriesEnumerationOptions))
+            {
+                string newOutputPath = Path.Combine(entry.Output, info.Name);
+                queue.Enqueue(new DirectoryEntry(info, newOutputPath));
+            }
         }
     }
 
@@ -210,7 +220,7 @@ public sealed class CreateHardLinkHandler
                 return Task.FromCanceled(token);
 
             Interlocked.Increment(ref _results.TotalFile);
-            if (_option.SkipSize > info.Length)
+            if (_option.SkipSize < 0L && _option.SkipSize > info.Length)
             {
                 FileSystem.CopyFile(info.FullName, newFullPath, _option.IsOverwrite);
                 Interlocked.Increment(ref _results.SkipFile);
