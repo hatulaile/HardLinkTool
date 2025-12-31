@@ -19,10 +19,8 @@ jobs:
 
       - name: Build Windows x64
         run: |
-          dotnet publish -c windows-release -a x64 -f net10.0 -o publish
-
-      - name: Change Name
-        run: |
+          ls HardLinkTool &&
+          dotnet publish -c windows-release -a x64 -f net10.0 -o publish &&
           mv publish/HardLinkTool.exe publish/HardLinkTool-windows-x64.exe.exe
 
       - name: Upload artifact
@@ -44,10 +42,8 @@ jobs:
 
       - name: Build Linux x64
         run: |
-          dotnet publish -c linux-release -a x64 -f net10.0 -o publish
-
-      - name: Change Name
-        run: |
+          ls HardLinkTool &&
+          dotnet publish -c linux-release -a x64 -f net10.0 -o publish &&
           mv publish/HardLinkTool.exe publish/HardLinkTool-linux-x64.exe.exe
 
       - name: Upload artifact
