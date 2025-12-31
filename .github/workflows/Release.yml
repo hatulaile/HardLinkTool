@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: publish/HardLinkTool-windows-x64.exe
+          path: ./publish/HardLinkTool-windows-x64.exe
   
   build-linux-64:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-x64
-          path: publish/HardLinkTool-linux-x64
+          path: ./publish/HardLinkTool-linux-x64
   
   create-release:
     needs: [ build-windows-64, build-linux-64 ]
@@ -74,6 +74,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            downloads/windows-x64/HardLinkTool-windows-x64.exe
-            downloads/linux-x64/HardLinkTool-linux-x64
+            ./downloads/windows-x64/HardLinkTool-windows-x64.exe
+            ./downloads/linux-x64/HardLinkTool-linux-x64
             LICENSE
