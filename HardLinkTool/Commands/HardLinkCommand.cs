@@ -53,12 +53,6 @@ public sealed class HardLinkCommand : RootCommand
             if (!parse.GetValue(_noErrorLogFile))
                 logger.AddErrorDisplay(new LocalFileDisplay(LoggerLevel.Error, @".\error.log"));
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                logger.Fatal("本软件仅支持 Windows 系统!");
-                return (int)ErrorCode.NotSupported;
-            }
-
             string path = Path.GetFullPath(parse.GetRequiredValue(_pathArgument));
             if (!File.Exists(path) && !Directory.Exists(path))
             {

@@ -1,8 +1,10 @@
 <Solution>
   <Configurations>
-    <Platform Name="x64" />
+    <BuildType Name="linux-debug" />
+    <BuildType Name="linux-release" />
+    <BuildType Name="windows-release" />
+    <BuildType Name="windows-debug" />
   </Configurations>
   <Project Path="HardLinkTool/HardLinkTool.csproj">
-    <Platform Project="x64" />
   </Project>
 </Solution>

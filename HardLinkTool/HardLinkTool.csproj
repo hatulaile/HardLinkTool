@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
-    <Configurations>Release;Debug</Configurations>
+    <Configurations>linux-debug;linux-release;windows-debug;windows-release</Configurations>
     <Platforms>x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -17,7 +17,7 @@
     <OptimizationPreference>Speed</OptimizationPreference>
     <TargetFramework>net10.0</TargetFramework>
     <SelfContained>true</SelfContained>
-    <Platforms>x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
 
     <Company>hatulaile</Company>
     <Copyright>hatulaile</Copyright>
@@ -27,8 +27,23 @@
     <Description>创建硬链接快捷工具</Description>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DebugType>none</DebugType>
+  <PropertyGroup Condition=" '$(Configuration)' == 'linux-debug' ">
+    <DefineConstants>TRACE,LINUX</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'linux-release' ">
+    <DefineConstants>TRACE,LINUX</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'windows-debug' ">
+    <DefineConstants>TRACE,WINDOWS</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'windows-release' ">
+    <DefineConstants>TRACE,WINDOWS</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.1" />
