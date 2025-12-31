@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Windows x64
         run: |
-          ls HardLinkTool &&
+          cd HardLinkTool &&
           dotnet publish -c windows-release -a x64 -f net10.0 -o publish &&
           mv publish/HardLinkTool.exe publish/HardLinkTool-windows-x64.exe.exe
 
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build Linux x64
         run: |
-          ls HardLinkTool &&
+          cd HardLinkTool &&
           dotnet publish -c linux-release -a x64 -f net10.0 -o publish &&
           mv publish/HardLinkTool.exe publish/HardLinkTool-linux-x64.exe.exe
 
