@@ -21,7 +21,7 @@ jobs:
         run: |
           cd HardLinkTool &&
           dotnet publish -c windows-release -a x64 -f net10.0 -o publish &&
-          mv publish/HardLinkTool.exe publish/HardLinkTool-windows-x64.exe.exe
+          mv publish/HardLinkTool.exe publish/HardLinkTool-windows-x64.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -44,23 +44,29 @@ jobs:
         run: |
           cd HardLinkTool &&
           dotnet publish -c linux-release -a x64 -f net10.0 -o publish &&
-          mv publish/HardLinkTool.exe publish/HardLinkTool-linux-x64.exe.exe
+          mv publish/HardLinkTool publish/HardLinkTool-linux-x64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-x64
-          path: publish/HardLinkTool-linux-x64.exe
+          path: publish/HardLinkTool-linux-x64
   
   create-release:
     needs: [ build-windows-64, build-linux-64 ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: downloads
-          name: windows-x64, linux-x64
+
+      - name: Show artifacts
+        run: |
+          ls -l downloads
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -68,6 +74,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            downloads/HardLinkTool-windows-x64.exe
-            downloads/HardLinkTool-linux-x64.exe
+            downloads/windows-x64/HardLinkTool-windows-x64.exe
+            downloads/linux-x64/HardLinkTool-linux-x64
             LICENSE
