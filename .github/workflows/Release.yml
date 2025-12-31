@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: HardLinkTool-windows-x64.exe
+          path: {{github.workspace}}/HardLinkTool/publish/HardLinkTool-windows-x64.exe
   
   build-linux-64:
     runs-on: ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-x64
-          path: HardLinkTool-linux-x64
+          path: ${{github.workspace}}/HardLinkTool/publish/HardLinkTool-linux-x64
   
   create-release:
     needs: [ build-windows-64, build-linux-64 ]
