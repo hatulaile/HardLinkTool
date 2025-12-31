@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using HardLinkTool.Commands;
+using HardLinkTool.Features.Utils;
 
 namespace HardLinkTool;
 
@@ -16,6 +17,7 @@ public static class Program
             EnableDefaultExceptionHandler = false,
             ProcessTerminationTimeout = TimeSpan.FromSeconds(10d)
         });
+        await LoggerUtils.FlushAllLoggerProcessorAsync();
         Console.CursorVisible = true;
         return code;
     }

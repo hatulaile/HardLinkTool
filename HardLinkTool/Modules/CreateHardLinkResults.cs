@@ -1,30 +1,30 @@
 ﻿namespace HardLinkTool.Modules;
 
-public struct CreateHardLinkResults
+public class CreateHardLinkResults
 {
-    public required bool IsCancel { get; init; }
+    public bool IsCancel;
 
-    public required int SuccessFile { get; init; }
+    public int SuccessFile;
 
-    public required int FailureFile { get; init; }
+    public int FailureFile;
 
-    public required int SkipFile { get; init; }
+    public int SkipFile;
 
-    public required int RepetitionFile { get; init; }
+    public int RepetitionFile;
 
-    public required int OverwriteFile { get; init; }
+    public int OverwriteFile;
 
-    public required int TotalFile { get; init; }
+    public int TotalFile;
 
-    public required int NewDirectory { get; init; }
+    public int NewDirectory;
 
-    public required int FailureDirectory { get; init; }
+    public int FailureDirectory;
 
-    public required int RepetitionDirectory { get; init; }
+    public int RepetitionDirectory;
 
-    public required int OverwriteDirectory { get; init; }
+    public int OverwriteDirectory;
 
-    public required int TotalDirectory { get; init; }
+    public int TotalDirectory;
 
-    public required long ElapsedMilliseconds { get; init; }
+    public long ElapsedMilliseconds;
 }

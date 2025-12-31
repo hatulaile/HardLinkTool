@@ -6,7 +6,7 @@ using HardLinkTool.Features.Utils;
 
 namespace HardLinkTool.Features.Loggers.LoggerDisplays;
 
-public class LocalFileDisplay : ILoggerDisplay
+public sealed class LocalFileDisplay : ILoggerDisplay
 {
     private readonly string _logFilePath;
     private readonly LoggerLevel _level;
@@ -21,6 +21,6 @@ public class LocalFileDisplay : ILoggerDisplay
     {
         string path = Path.GetFullPath(_logFilePath);
         FileLoggerProcessor.CreateOrGetInstance(path).AddLog(
-            new FileLoggerEntry($"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}]{message}\n"));
+            new FileLoggerEntry($"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}][{Environment.CurrentManagedThreadId}]{message}\n"));
     }
 }

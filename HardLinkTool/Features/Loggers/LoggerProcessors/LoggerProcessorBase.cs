@@ -15,10 +15,9 @@ public abstract class LoggerProcessorBase<TLogEntry> : IDisposable, IAsyncDispos
 
     private async Task ProcessAsync()
     {
-        await Task.Yield();
         await foreach (TLogEntry logEntry in _channel.Reader.ReadAllAsync())
         {
-            await Log(logEntry);
+            await Log(logEntry).ConfigureAwait(false);
         }
     }
 
@@ -44,7 +43,7 @@ public abstract class LoggerProcessorBase<TLogEntry> : IDisposable, IAsyncDispos
         _channel.Writer.Complete();
         return ValueTask.CompletedTask;
     }
-    
+
     public async Task FlushAsync()
     {
         await DisposeAsync();

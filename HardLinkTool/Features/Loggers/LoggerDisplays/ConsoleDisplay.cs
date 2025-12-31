@@ -6,7 +6,7 @@ using HardLinkTool.Features.Utils;
 
 namespace HardLinkTool.Features.Loggers.LoggerDisplays;
 
-public class ConsoleDisplay : ILoggerDisplay
+public sealed class ConsoleDisplay : ILoggerDisplay
 {
     private readonly LoggerLevel _level;
 
@@ -17,7 +17,7 @@ public class ConsoleDisplay : ILoggerDisplay
 
     public void Log(object message)
     {
-        string formattedMessage = $"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}]{message}";
+        string formattedMessage = $"[{LoggerUtils.GetLoggerLevelDisplay(_level)}: {DateTime.Now:HH:mm:ss}][{Environment.CurrentManagedThreadId}]{message}";
         ConsoleLoggerProcessor.CreateOrGetInstance()
             .AddLog(new ConsoleLoggerEntry(LoggerUtils.GetColor(_level), formattedMessage));
     }
