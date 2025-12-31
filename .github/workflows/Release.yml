@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Windows x64
         run: |
-          dotnet publish -c windows-release -a win-x64 -f net10.0 -o publish
+          dotnet publish -c windows-release -a x64 -f net10.0 -o publish
 
       - name: Change Name
         run: |
@@ -44,7 +44,7 @@ jobs:
 
       - name: Build Linux x64
         run: |
-          dotnet publish -c linux-release -a win-x64 -f net10.0 -o publish
+          dotnet publish -c linux-release -a x64 -f net10.0 -o publish
 
       - name: Change Name
         run: |
