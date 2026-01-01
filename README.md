@@ -31,7 +31,7 @@ no-error-log-file: 是否不输出错误日志.
 <h1>PS</h1>
 这个是我想保持bt做种制作的小工具.
 
-我使用了**Windows Api**,其他的操作系统应该没有办法运行.
+本软件支持 WINDOWS, LINUX(未测试).
 
 <h1>运行截图</h1>
 <img width="928" height="517" alt="runing" src="https://github.com/user-attachments/assets/7e7eaa40-5058-49e5-a470-56afc50dd886" />
