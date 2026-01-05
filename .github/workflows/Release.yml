@@ -1,13 +1,21 @@
-name: Release
+name: Build and Release
 
 on:
   push:
     tags:
       - "v*"
 
+env:
+  DOTNET_VERSION: '10.*.*'
+  PROJECT_PATH: './HardLinkTool'
+
 jobs:
-  build-windows-64:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'windows-latest','Ubuntu-latest' ]
+        Architecture: [ 'x64' ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -15,52 +23,57 @@ jobs:
       - uses: actions/setup-dotnet@v4
         name: Setup dotnet
         with:
-          dotnet-version: '10.*.*'
+          dotnet-version: ${{env.DOTNET_VERSION}}
 
-      - name: Build Windows x64
+      - name: Build
         run: |
-          cd HardLinkTool &&
-          dotnet publish -c windows-release -a x64 -f net10.0 -o publish &&
-          cd publish &&
-          mv HardLinkTool.exe HardLinkTool-windows-x64.exe
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            dotnet \
+            publish ${{env.PROJECT_PATH}} \
+            -c windows-release \
+            -a ${{matrix.Architecture}} \
+            -o publish
+          else
+            dotnet \
+            publish ${{env.PROJECT_PATH}} \
+            -c linux-release \
+            -a ${{matrix.Architecture}} \
+            -o publish
+          fi
+        shell: bash
+
+      - name: Change File Name
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mv "./publish/HardLinkTool.exe" "./publish/HardLinkTool-${{runner.os}}-${{matrix.Architecture}}.exe"
+          else
+            mv "./publish/HardLinkTool" "./publish/HardLinkTool-${{runner.os}}-${{matrix.Architecture}}"
+          fi
+        shell: bash
+
+      - name: Remove PDB
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          rm -Force ./publish/*.pdb
+
+      - name: Remove DBG
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          rm -f ./publish/*.dbg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-x64
-          path: ${{github.workspace}}/HardLinkTool/publish/HardLinkTool-windows-x64.exe
-  
-  build-linux-64:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        name: Setup dotnet
-        with:
-          dotnet-version: '10.*.*'
-
-      - name: Build Linux x64
-        run: |
-          cd HardLinkTool &&
-          dotnet publish -c linux-release -a x64 -f net10.0 -o publish &&
-          cd publish &&
-          mv HardLinkTool HardLinkTool-linux-x64
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-x64
-          path: ${{github.workspace}}/HardLinkTool/publish/HardLinkTool-linux-x64
+          name: ${{ runner.os }}-${{ matrix.Architecture }}
+          path: ${{ github.workspace }}/publish/*
   
   create-release:
-    needs: [ build-windows-64, build-linux-64 ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-        
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -77,6 +90,5 @@ jobs:
           generate_release_notes: true
           draft: true
           files: |
-            ./downloads/windows-x64/HardLinkTool-windows-x64.exe
-            ./downloads/linux-x64/HardLinkTool-linux-x64
+            ./downloads/**/*
             LICENSE
