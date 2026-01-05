@@ -122,13 +122,15 @@ public sealed class CreateHardLinkHandler
         {
             isCancel = true;
         }
-
-        await refreshToken.CancelAsync().ConfigureAwait(false);
-        if (progressDisplayTask is not null)
-            await progressDisplayTask.ConfigureAwait(false);
+        finally
+        {
+            await refreshToken.CancelAsync().ConfigureAwait(false);
+            if (progressDisplayTask is not null)
+                await progressDisplayTask.ConfigureAwait(false);
+            refreshToken.Dispose();
+        }
 
         _stopwatch.Stop();
-
         _results.ElapsedMilliseconds = _stopwatch.ElapsedMilliseconds;
         _results.IsCancel = isCancel;
         return _results;
