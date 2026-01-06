@@ -5,17 +5,14 @@ namespace HardLinkTool.Modules;
 [StructLayout(LayoutKind.Auto)]
 public readonly struct CreateHardLinkOption
 {
-    public CreateHardLinkOption(string target, string output, long skipSize, bool isOverwrite)
+    public CreateHardLinkOption(HardLinkEntry[] hardLinkEntry, long skipSize, bool isOverwrite)
     {
-        Target = target;
-        Output = output;
+        HardLinkEntry = hardLinkEntry;
         SkipSize = skipSize;
         IsOverwrite = isOverwrite;
     }
 
-    public readonly string Target;
-
-    public readonly string Output;
+    public readonly HardLinkEntry[] HardLinkEntry;
 
     public readonly long SkipSize;
 

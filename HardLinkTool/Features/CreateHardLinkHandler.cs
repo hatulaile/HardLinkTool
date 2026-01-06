@@ -90,10 +90,20 @@ public sealed class CreateHardLinkHandler
         _stopwatch = Stopwatch.StartNew();
         try
         {
-            if (IsFile(_option.Target))
+            if (_option.HardLinkEntry.All(target => IsFile(target.Target)))
             {
-                await CreateFileHardLinkAsync(new FileInfo(_option.Target), _option.Output, token)
-                    .ConfigureAwait(false);
+                try
+                {
+                    foreach (HardLinkEntry hardLinkEntry in _option.HardLinkEntry)
+                    {
+                        await CreateFileHardLinkAsync(new FileInfo(hardLinkEntry.Target), hardLinkEntry.Output, token)
+                            .ConfigureAwait(false);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
+                }
             }
             else
             {
@@ -110,7 +120,7 @@ public sealed class CreateHardLinkHandler
                 for (int i = 0; i < fileProcessorCount; i++)
                     _fileProcessor[i] = ProcessFileEntriesAsync(token);
 
-                await ProducesDirectoryEntriesAsync(new DirectoryInfo(_option.Target), _option.Output, token)
+                await ProducesEntriesAsync(token)
                     .ConfigureAwait(false);
                 _directoryChannel.Writer.Complete();
                 await Task.WhenAll(_directoryProcessor).WaitAsync(token).ConfigureAwait(false);
@@ -136,10 +146,21 @@ public sealed class CreateHardLinkHandler
         return _results;
     }
 
-    private async Task ProducesDirectoryEntriesAsync(DirectoryInfo target, string output, CancellationToken token)
+    private async Task ProducesEntriesAsync(CancellationToken token)
     {
-        var queue = new Queue<DirectoryEntry>(32);
-        queue.Enqueue(new DirectoryEntry(target, output));
+        var queue = new Queue<DirectoryEntry>(256);
+        foreach (HardLinkEntry hardLinkEntry in _option.HardLinkEntry)
+        {
+            if (IsFile(hardLinkEntry.Target))
+            {
+                await _fileChannel.Writer.WriteAsync(
+                    new FileEntry(new FileInfo(hardLinkEntry.Target), hardLinkEntry.Output), token);
+            }
+            else
+            {
+                queue.Enqueue(new DirectoryEntry(new DirectoryInfo(hardLinkEntry.Target), hardLinkEntry.Output));
+            }
+        }
 
         while (queue.Count > 0)
         {
