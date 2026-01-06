@@ -11,14 +11,24 @@ public static class Program
     public static async Task<int> Main(string[] args)
     {
         Console.CursorVisible = false;
-        var hardLinkCommand = new HardLinkCommand();
-        int code = await hardLinkCommand.Parse(args).InvokeAsync(new InvocationConfiguration()
+        try
         {
-            EnableDefaultExceptionHandler = false,
-            ProcessTerminationTimeout = TimeSpan.FromSeconds(10d)
-        });
-        await LoggerUtils.FlushAllLoggerProcessorAsync();
-        Console.CursorVisible = true;
-        return code;
+            var hardLinkCommand = new HardLinkCommand();
+            int code = await hardLinkCommand.Parse(args).InvokeAsync(new InvocationConfiguration()
+            {
+#if DEBUG
+                EnableDefaultExceptionHandler = false,
+#else
+                EnableDefaultExceptionHandler = true,
+#endif
+                ProcessTerminationTimeout = TimeSpan.FromSeconds(10d)
+            });
+            await LoggerUtils.FlushAllLoggerProcessorAsync();
+            return code;
+        }
+        finally
+        {
+            Console.CursorVisible = true;
+        }
     }
 }
