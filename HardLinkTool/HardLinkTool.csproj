@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Version>0.3.1.15-$(Configuration)</Version>
-    <AssemblyVersion>0.3.1.15</AssemblyVersion>
-    <FileVersion>0.3.1.15</FileVersion>
+    <Version>0.3.2.0-beta-$(Configuration)</Version>
+    <AssemblyVersion>0.3.2.0-beta</AssemblyVersion>
+    <FileVersion>0.3.2.0-beta</FileVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
