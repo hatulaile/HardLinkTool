@@ -288,6 +288,7 @@ public sealed class CreateHardLinkHandler
             if (_overwriteDisplays is null) return;
             while (!token.IsCancellationRequested)
             {
+                await Task.Delay(_refreshTime, token).ConfigureAwait(false);
                 _overwriteDisplays.Overwrite
                 (
                     $"成功 {_results.SuccessFile} 个文件. " + $"失败 {_results.FailureFile} 个文件. \n" +
@@ -299,7 +300,6 @@ public sealed class CreateHardLinkHandler
                     $"总共耗时 {_stopwatch?.ElapsedMilliseconds ?? -1L} 毫秒. \n" +
                     $"总共 {_results.TotalFile + _results.TotalDirectory} 个文件/文件夹. \n"
                 );
-                await Task.Delay(_refreshTime, token).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException)

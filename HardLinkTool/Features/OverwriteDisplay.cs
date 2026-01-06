@@ -23,6 +23,7 @@ public class OverwriteDisplay : IOverwriteDisplay
 
     public void Repetition()
     {
+        if (!_isAlternate) return;
         Console.Write("\e[?1049l");
         _isAlternate = false;
     }
