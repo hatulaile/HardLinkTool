@@ -5,6 +5,15 @@
     <BuildType Name="windows-release" />
     <BuildType Name="windows-debug" />
   </Configurations>
-  <Project Path="HardLinkTool/HardLinkTool.csproj">
+  <Project Path="HardLinkTool.ConsoleApp/HardLinkTool.ConsoleApp.csproj">
+    <BuildType Solution="linux-debug|*" Project="Debug" />
+    <BuildType Solution="linux-release|*" Project="Release" />
+    <BuildType Solution="windows-debug|*" Project="Debug" />
+    <BuildType Solution="windows-release|*" Project="Release" />
+  </Project>
+    <BuildType Solution="linux-debug|*" Project="Debug" />
+    <BuildType Solution="linux-release|*" Project="Release" />
+    <BuildType Solution="windows-debug|*" Project="Debug" />
+    <BuildType Solution="windows-release|*" Project="Release" />
   </Project>
 </Solution>

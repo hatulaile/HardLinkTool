@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Version>0.4.0-$(Configuration)</Version>
+    <AssemblyVersion>0.4.0</AssemblyVersion>
+    <FileVersion>0.4.0</FileVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>default</LangVersion>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+    <TargetFramework>net10.0</TargetFramework>
+    <Platforms>AnyCPU</Platforms>
+
+    <Company>hatulaile</Company>
+    <Copyright>hatulaile</Copyright>
+    <AssemblyTitle>HardLinkTool</AssemblyTitle>
+    <Product>HardLinkTool</Product>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
+    <Description>创建硬链接快捷工具</Description>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.1" />
+    <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj" />
+  </ItemGroup>
+</Project>
