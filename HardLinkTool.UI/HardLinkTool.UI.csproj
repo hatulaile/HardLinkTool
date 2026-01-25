@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <Version>0.4.0-$(Configuration)</Version>
+        <AssemblyVersion>0.4.0</AssemblyVersion>
+        <FileVersion>0.4.0</FileVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+        <Company>hatulaile</Company>
+        <Copyright>hatulaile</Copyright>
+        <AssemblyTitle>HardLinkTool</AssemblyTitle>
+        <Product>HardLinkTool</Product>
+        <NeutralLanguage>zh-CN</NeutralLanguage>
+        <Description>创建硬链接快捷工具-GUI</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11"/>
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Xaml.Behaviors.Interactions.Custom">
+        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactions.custom\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactions.Custom.dll</HintPath>
+      </Reference>
+      <Reference Include="Xaml.Behaviors.Interactions.DragAndDrop">
+        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactions.draganddrop\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactions.DragAndDrop.dll</HintPath>
+      </Reference>
+      <Reference Include="Xaml.Behaviors.Interactivity">
+        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactivity\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactivity.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>

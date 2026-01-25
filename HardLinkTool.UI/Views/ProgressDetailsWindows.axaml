@@ -1,0 +1,85 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:HardLinkTool.UI.ViewModels"
+        xmlns:controls="clr-namespace:HardLinkTool.UI.Views"
+        xmlns:c="using:HardLinkTool.UI.Converters"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="270"
+        Width="480" Height="270"
+        MinWidth="480" MinHeight="270"
+        MaxWidth="480" MaxHeight="270"
+        x:Class="HardLinkTool.UI.Views.ProgressDetailsWindows"
+        x:DataType="vm:ProgressDetailsWindowViewModel"
+        Title="ProgressDetails">
+
+    <Window.Resources>
+        <c:StopwatchToStringConverter x:Key="StopwatchToStringConverter" />
+        <c:CreateHardLinkStateToStringConverter1 x:Key="StateToForegroundConverter" />
+        <c:CreateHardLinkStateToStringConverter x:Key="StateToStringConverter" />
+    </Window.Resources>
+
+    <Border Padding="12">
+        <Grid RowDefinitions="Auto,Auto,*">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" DockPanel.Dock="Bottom">
+                <Grid.Styles>
+                    <Style Selector="Border">
+                        <Setter Property="VerticalAlignment" Value="Stretch" />
+                        <Setter Property="Width" Value="2" />
+                        <Setter Property="Background" Value="{DynamicResource SystemControlTransientBackgroundBrush}" />
+                        <Setter Property="Margin" Value="10,0,10,0" />
+                    </Style>
+                    <Style Selector="StackPanel">
+                        <Setter Property="Spacing" Value="16"></Setter>
+                        <Setter Property="Margin" Value="0,6" />
+                    </Style>
+                </Grid.Styles>
+
+                <StackPanel Grid.Column="0">
+                    <controls:ProgressDetailsControl Title="成功文件:"
+                                                     Value="{Binding ProgressReport.LastResult.SuccessFile}" />
+                    <controls:ProgressDetailsControl Title="失败文件:"
+                                                     Value="{Binding ProgressReport.LastResult.FailureFile}" />
+                    <controls:ProgressDetailsControl Title="复制文件:" Value="{Binding ProgressReport.LastResult.SkipFile}" />
+                    <controls:ProgressDetailsControl Title="存在文件:"
+                                                     Value="{Binding ProgressReport.LastResult.RepetitionFile}" />
+                    <controls:ProgressDetailsControl Title="覆盖文件:"
+                                                     Value="{Binding ProgressReport.LastResult.OverwriteFile}" />
+                    <controls:ProgressDetailsControl Title="总文件:" Value="{Binding ProgressReport.LastResult.TotalFile}" />
+                </StackPanel>
+
+                <Border Grid.Column="1" />
+
+                <StackPanel Grid.Column="2">
+                    <controls:ProgressDetailsControl Title="新建文件夹:"
+                                                     Value="{Binding ProgressReport.LastResult.NewDirectory}" />
+                    <controls:ProgressDetailsControl Title="失败文件夹:"
+                                                     Value="{Binding ProgressReport.LastResult.FailureDirectory}" />
+                    <controls:ProgressDetailsControl Title="重复文件夹:"
+                                                     Value="{Binding ProgressReport.LastResult.RepetitionDirectory}" />
+                    <controls:ProgressDetailsControl Title="覆盖文件夹:"
+                                                     Value="{Binding ProgressReport.LastResult.OverwriteDirectory}" />
+                    <controls:ProgressDetailsControl Title="总文件夹:"
+                                                     Value="{Binding ProgressReport.LastResult.TotalDirectory}" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Height="2" VerticalAlignment="Stretch" Background="{DynamicResource SystemControlTransientBackgroundBrush}" Margin="0,6"></Border>
+            <DockPanel Grid.Row="2" VerticalAlignment="Center" Margin="8,0">
+                <DockPanel.Styles>
+                    <Style Selector="TextBlock">
+                        <Setter Property="FontSize" Value="16"></Setter>
+                    </Style>
+                </DockPanel.Styles>
+                <TextBlock Text="总时间:" Margin="4,0" />
+                <TextBlock
+                    Text="{Binding ProgressReport.LastResult.Stopwatch, Converter={StaticResource StopwatchToStringConverter}}" />
+
+                <TextBlock
+                    Text="{Binding ProgressReport.LastResult.State, Converter={StaticResource StateToStringConverter}}"
+                    Foreground="{Binding ProgressReport.LastResult.State, Converter={StaticResource StateToForegroundConverter}}"
+                    HorizontalAlignment="Right" />
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

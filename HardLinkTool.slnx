@@ -11,6 +11,8 @@
     <BuildType Solution="windows-debug|*" Project="Debug" />
     <BuildType Solution="windows-release|*" Project="Release" />
   </Project>
+  <Project Path="HardLinkTool.Library/HardLinkTool.Library.csproj" />
+  <Project Path="HardLinkTool.UI/HardLinkTool.UI.csproj">
     <BuildType Solution="linux-debug|*" Project="Debug" />
     <BuildType Solution="linux-release|*" Project="Release" />
     <BuildType Solution="windows-debug|*" Project="Debug" />

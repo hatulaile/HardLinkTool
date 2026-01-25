@@ -1,0 +1,199 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HardLinkTool.UI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:c="using:HardLinkTool.UI.Converters"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="600"
+        Width="1024" Height="576"
+        MinWidth="1024" MinHeight="576"
+        x:Class="HardLinkTool.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="HardLinkTool.UI">
+
+    <Window.Resources>
+        <c:StopwatchToStringConverter x:Key="StopwatchToStringConverter" />
+        <c:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+        <c:CreateHardLinkStateToStringConverter1 x:Key="StateToForegroundConverter" />
+        <c:CreateHardLinkStateToStringConverter x:Key="StateToStringConverter" />
+    </Window.Resources>
+
+    <Interaction.Behaviors>
+        <FilesDropBehavior Command="{Binding FilesDropCommand}" />
+    </Interaction.Behaviors>
+
+    <Grid ColumnDefinitions="*, 200">
+        <Interaction.Behaviors>
+            <FilesDropBehavior Command="{Binding FilesDropCommand}" />
+        </Interaction.Behaviors>
+        <!-- 主视图 -->
+        <Grid Grid.Column="0" RowDefinitions="*, Auto">
+            <DataGrid Grid.Row="0"
+                      GridLinesVisibility="All"
+                      BorderBrush="{DynamicResource SystemControlTransientBackgroundBrush}"
+                      ItemsSource="{Binding HardLinkEntries}"
+                      SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                      BorderThickness="2"
+                      Margin="2,2,1,0"
+                      CanUserResizeColumns="True"
+                      CanUserSortColumns="True"
+                      IsReadOnly="True"
+                      SelectionMode="Single">
+
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="编辑" Command="{Binding OpenEditableCommand}" />
+                        <MenuItem Header="删除" Command="{Binding DeleteEntryCommand}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+
+                <DataGrid.Styles>
+                    <Style Selector="TextBlock.item">
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="FontSize" Value="17" />
+                        <Setter Property="Margin" Value="4,0,0,0"></Setter>
+                    </Style>
+                </DataGrid.Styles>
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="源路径" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Classes="item" Text="{Binding Target}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="输出路径" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Classes="item" Text="{Binding Output}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <!-- 详情界面 -->
+            <Button Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource ButtonBackground}"
+                    CornerRadius="0" Click="OpenProgressDetail">
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                            <Setter Property="Background" Value="{DynamicResource ButtonBackground}" />
+                            <Setter Property="Opacity" Value="0.97" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}" />
+                        </Style>
+
+                        <Style Selector="^:pressed">
+                            <Setter Property="RenderTransform" Value="none" />
+                        </Style>
+                    </Style>
+                </Button.Styles>
+
+                <Button.Transitions>
+                    <Transitions>
+                    </Transitions>
+                </Button.Transitions>
+
+                <WrapPanel>
+                    <WrapPanel.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="Margin" Value="2,0,2,0"></Setter>
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Style>
+                        <Style Selector="TextBlock.title">
+                            <Setter Property="Margin" Value="0,0,2,0"></Setter>
+                        </Style>
+                    </WrapPanel.Styles>
+
+                    <WrapPanel MinWidth="160">
+                        <TextBlock Text="Files:" Classes="title" />
+                        <TextBlock Foreground="DarkSeaGreen"
+                                   Text="{Binding HardLinkProgressReport.LastResult.SuccessFile}"
+                                   ToolTip.Tip="这是处理成功的文件数量" />
+                        <TextBlock Text="/" />
+                        <TextBlock Foreground="LightSkyBlue"
+                                   Text="{Binding HardLinkProgressReport.LastResult.SkipFile}"
+                                   ToolTip.Tip="这是直接复制的文件数量" />
+                        <TextBlock Text="/" />
+                        <TextBlock Foreground="PaleVioletRed"
+                                   Text="{Binding HardLinkProgressReport.LastResult.FailureFile}"
+                                   ToolTip.Tip="处理失败的文件数量" />
+                        <TextBlock Text="-" />
+                        <TextBlock Text="{Binding HardLinkProgressReport.LastResult.TotalFile}" ToolTip.Tip="已处理的文件数量" />
+                        <Border Width="30" />
+                    </WrapPanel>
+
+                    <WrapPanel MinWidth="200">
+                        <TextBlock Text="Directories:" Classes="title" />
+                        <TextBlock Foreground="DarkSeaGreen"
+                                   Text="{Binding HardLinkProgressReport.LastResult.NewDirectory}"
+                                   ToolTip.Tip="新建的文件夹数量" />
+                        <TextBlock Text="/" />
+                        <TextBlock Foreground="Gray"
+                                   Text="{Binding HardLinkProgressReport.LastResult.RepetitionDirectory}"
+                                   ToolTip.Tip="已存在文件夹数量" />
+                        <TextBlock Text="/" />
+                        <TextBlock Foreground="PaleVioletRed"
+                                   Text="{Binding HardLinkProgressReport.LastResult.FailureDirectory}"
+                                   ToolTip.Tip="新建失败的文件夹数量" />
+                        <TextBlock Text="-" />
+                        <TextBlock Text="{Binding HardLinkProgressReport.LastResult.TotalFile}"
+                                   ToolTip.Tip="已处理的文件夹数量" />
+                        <Border Width="30" />
+                    </WrapPanel>
+
+                    <WrapPanel ToolTip.Tip="处理所花时间">
+                        <TextBlock Text="Time:" Classes="title" />
+                        <TextBlock
+                            Text="{Binding HardLinkProgressReport.LastResult.Stopwatch, TargetNullValue='00:00', FallbackValue='00:00',
+                            Converter={StaticResource StopwatchToStringConverter}}" />
+                        <Border Width="30" />
+                    </WrapPanel>
+
+                    <WrapPanel HorizontalAlignment="Right"
+                               IsVisible="{Binding HardLinkProgressReport.LastResult.State, Converter={StaticResource EnumToBoolConverter}}">
+                        <TextBlock
+                            Text="{Binding HardLinkProgressReport.LastResult.State, Converter={StaticResource StateToStringConverter}}"
+                            Foreground="{Binding HardLinkProgressReport.LastResult.State, Converter={StaticResource StateToForegroundConverter}}"
+                            Classes="title" />
+                    </WrapPanel>
+                </WrapPanel>
+            </Button>
+        </Grid>
+        <Border Grid.Column="1" Padding="12" Background="{DynamicResource SystemControlTransientBackgroundBrush}">
+            <Grid RowDefinitions="*,Auto">
+                <!-- 选项界面 -->
+                <Grid.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="FontSize" Value="20" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    </Style>
+                    <Style Selector="StackPanel">
+                        <Setter Property="Spacing" Value="18" />
+                    </Style>
+                </Grid.Styles>
+                <StackPanel Grid.Row="0">
+                    <Button Content="添加文件" Command="{Binding AddFileCommand}" />
+                    <Button Content="添加文件夹" Command="{Binding AddDirectoryCommand}" />
+                    <Button Content="编辑" Command="{Binding OpenEditableCommand}" />
+                    <Button Content="删除" Command="{Binding DeleteEntryCommand}" />
+                    <Button Content="清空" Command="{Binding ClearEntryCommand}" />
+                </StackPanel>
+                <StackPanel Grid.Row="1" Spacing="8">
+                    <CheckBox Content="允许覆盖文件" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Left"
+                              IsChecked="{Binding CreateHardLinkConfig.IsOverwrite}"
+                              IsEnabled="{Binding !CreateHardLinkCommand.IsRunning}" />
+                    <DockPanel>
+                        <TextBlock Text="跳过大小:" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <NumericUpDown Value="{Binding CreateHardLinkConfig.SkipSize}"
+                                       ShowButtonSpinner="False" />
+                    </DockPanel>
+                    <Button Content="开始" Command="{Binding CreateHardLinkCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

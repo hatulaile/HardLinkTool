@@ -1,0 +1,23 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:HardLinkTool.UI.Views">
+    <Design.PreviewWith>
+        <Border Padding="10">
+            <StackPanel>
+                <controls:ProgressDetailsControl Title="完成数量:" Value="1000000"/>
+                <controls:ProgressDetailsControl Title="数量:" Value="1000000"/>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|ProgressDetailsControl">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <DockPanel>
+                    <TextBlock Text="{TemplateBinding Title}" />
+                    <TextBlock HorizontalAlignment="Right" Text="{TemplateBinding Value}" FontWeight="Bold" />
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

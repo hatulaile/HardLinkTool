@@ -1,0 +1,55 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:HardLinkTool.UI.ViewModels"
+        xmlns:converter="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="270"
+        Width="480" Height="270"
+        MinWidth="480" MinHeight="270"
+        MaxWidth="480" MaxHeight="270"
+        x:DataType="viewModels:EditableWindowViewModel"
+        x:Class="HardLinkTool.UI.Views.EditableWindow"
+        Title="Editable">
+
+    <Window.Resources>
+        <converter:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,* ,Auto" Margin="20,16,20,16">
+        <TextBlock Grid.Row="0" Text="编辑" FontSize="24" FontWeight="Bold" Margin="0,0,0,12" />
+        <StackPanel Grid.Row="1" Margin="0,0,0,16">
+            <TextBlock Text="源文件路径:" Margin="0,0,0,2" />
+            <TextBox IsReadOnly="True" Text="{Binding HardLinkEntry.Target, Mode=OneTime}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,16">
+            <TextBlock Text="输出路径:" Margin="0,0,0,2" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0" Text="{Binding NewOutput, Mode=TwoWay}" Margin="0,0,4,0">
+
+                </TextBox>
+                <Button Grid.Column="1" Content="..." Command="{Binding OpenFileCommand}"
+                        IsVisible="{Binding StorageProvider.CanPickFolder}" />
+            </Grid>
+        </StackPanel>
+
+        <Border Grid.Row="3" />
+        <DockPanel Grid.Row="4">
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
+                <!-- 可以考虑加图标 -->
+                <TextBlock Text="{Binding ValidateResult.Message}"
+                           IsVisible="{Binding ValidateResult.Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                           Foreground="{Binding ValidateResult.MessageColor, Converter= {StaticResource ColorToBrushConverter}}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0"
+                        Spacing="10">
+                <Button Content="Cancel" Click="CancelClick" IsCancel="True" />
+                <Button Content="OK" Click="OkClick" IsEnabled="{Binding ValidateResult.IsValid}" />
+            </StackPanel>
+        </DockPanel>
+
+    </Grid>
+
+</Window>
