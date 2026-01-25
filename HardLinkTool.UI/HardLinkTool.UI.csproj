@@ -18,13 +18,18 @@
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
 
+    <Import Project="Build\NativeAOT.props"/>
+
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="2ndLAB.ANGLE.Static" Version="7151.0.0-10.0.26100.0-1.79e529b" />
+        <PackageReference Include="2ndLAB.SkiaSharp.Static" Version="2.88.9-10.0.26100.0-1.1c7d845" />
+        <PackageReference Include="VC-LTL" Version="5.2.2"/>
         <PackageReference Include="Avalonia" Version="11.3.11"/>
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11"/>
         <PackageReference Include="Avalonia.Desktop" Version="11.3.11"/>
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11"/>
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11"/>
@@ -33,23 +38,24 @@
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj" />
+        <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Xaml.Behaviors.Interactions.Custom">
-        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactions.custom\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactions.Custom.dll</HintPath>
-      </Reference>
-      <Reference Include="Xaml.Behaviors.Interactions.DragAndDrop">
-        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactions.draganddrop\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactions.DragAndDrop.dll</HintPath>
-      </Reference>
-      <Reference Include="Xaml.Behaviors.Interactivity">
-        <HintPath>C:\Users\hatu\.nuget\packages\xaml.behaviors.interactivity\11.3.9.3\lib\net10.0\Xaml.Behaviors.Interactivity.dll</HintPath>
-      </Reference>
+        <PackageReference Include="Xaml.Behaviors.Interactions.DragAndDrop" Version="11.3.9.3">
+        </PackageReference>
+        <PackageReference Include="Xaml.Behaviors.Interactivity" Version="11.3.9.3">
+        </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Build\"/>
+    </ItemGroup>
+
+
 </Project>

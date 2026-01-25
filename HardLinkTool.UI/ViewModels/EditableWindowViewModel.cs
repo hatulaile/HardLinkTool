@@ -60,7 +60,6 @@ public partial class EditableWindowViewModel : ViewModelBase
                 {
                     Title = "选择存放的文件位置",
                     SuggestedFileName = Path.GetFileNameWithoutExtension(HardLinkEntry.Target),
-                    SuggestedFileType = FilePickerFileTypes.All,
                     DefaultExtension = Path.GetExtension(HardLinkEntry.Target).Remove(0, 1),
                 });
             if (fileResult.File is null) return;
