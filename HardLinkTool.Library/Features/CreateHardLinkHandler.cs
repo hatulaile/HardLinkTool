@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
 using HardLinkTool.Library.Enums;
 using HardLinkTool.Library.Features.Loggers;
@@ -61,7 +60,6 @@ public sealed class CreateHardLinkHandler
         _progressReport = progressReport;
     }
 
-    [MemberNotNull(nameof(Results))]
     public async Task<CreateHardLinkResults> RunAsync(CreateHardLinkOption option, CancellationToken token = default)
     {
         if (IsRunning)
