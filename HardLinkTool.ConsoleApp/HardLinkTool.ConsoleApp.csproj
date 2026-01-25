@@ -24,7 +24,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.1" />
-    <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj" />
