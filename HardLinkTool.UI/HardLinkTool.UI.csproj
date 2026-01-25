@@ -14,7 +14,8 @@
         <AssemblyTitle>HardLinkTool</AssemblyTitle>
         <Product>HardLinkTool</Product>
         <NeutralLanguage>zh-CN</NeutralLanguage>
-        <Description>创建硬链接快捷工具-GUI</Description>
+        <Description>创建硬链接UI工具</Description>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
 
     <ItemGroup>
