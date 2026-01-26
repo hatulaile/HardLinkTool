@@ -27,11 +27,6 @@ jobs:
         with:
           dotnet-version: ${{inputs.dotnet-version}}
 
-      - name: Install latest clang and lld
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-          sudo apt-get update
-
       - name: Build
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
