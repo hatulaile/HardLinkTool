@@ -1,0 +1,87 @@
+﻿name: build-ui.yml
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: 'Dotnet Version'
+        required: true
+        type: string
+
+env:
+  PROJECT_PATH: './HardLinkTool.UI'
+
+jobs:
+  build-ui:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'windows-latest','Ubuntu-latest' ]
+        Architecture: [ 'x64' ]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        name: Setup dotnet
+        with:
+          dotnet-version: ${{inputs.dotnet-version}}
+
+      - name: Install latest clang and lld
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          sudo apt-get update
+
+      - name: Build
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            dotnet \
+            publish ${{env.PROJECT_PATH}} \
+            -c windows-release \
+            -a ${{matrix.Architecture}} \
+            -o publish \
+            //p:PublishAot=true
+          else
+            dotnet \
+            publish ${{env.PROJECT_PATH}} \
+            -c linux-release \
+            -a ${{matrix.Architecture}} \
+            -o publish \
+            /p:PublishAot=true
+          fi
+        shell: bash
+
+      - name: Change File Name
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mv "./publish/HardLinkTool.UI.exe" "./publish/HardLinkTool.UI-${{runner.os}}-${{matrix.Architecture}}.exe"
+          else
+            mv "./publish/HardLinkTool.UI" "./publish/HardLinkTool.UI-${{runner.os}}-${{matrix.Architecture}}"
+          fi
+        shell: bash
+
+      - name: Remove Windows redundant
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          rm -Force ./publish/*.pdb
+          rm -Force ./publish/*.lib
+          rm -Force ./publish/*.so
+          rm -Force ./publish/*.dll
+
+      - name: Remove Linux redundant
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          rm -f ./publish/*.pdb
+          rm -f ./publish/*.dbg
+
+      - name: Linux packaged
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          tar -czvf ./publish/HardLinkTool.UI-${{runner.os}}-${{matrix.Architecture}}.tar.gz ./publish/*
+          find ./publish/ -type f ! -name "*.tar.gz" -delete
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-UI-${{ matrix.Architecture }}
+          path: ${{ github.workspace }}/publish/*

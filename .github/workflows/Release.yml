@@ -6,69 +6,21 @@ on:
       - "v*"
 
 env:
-  DOTNET_VERSION: '10.*.*'
-  PROJECT_PATH: './HardLinkTool'
+  DOTNET_VERSION: '10.0.*'
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ 'windows-latest','Ubuntu-latest' ]
-        Architecture: [ 'x64' ]
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+  build-ui:
+    uses: ./.github/workflows/build-ui.yml
+    with:
+      dotnet-version: 10.0.*
 
-      - uses: actions/setup-dotnet@v4
-        name: Setup dotnet
-        with:
-          dotnet-version: ${{env.DOTNET_VERSION}}
+  build-console:
+    uses: ./.github/workflows/build-console.yml
+    with:
+      dotnet-version: 10.0.*
 
-      - name: Build
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            dotnet \
-            publish ${{env.PROJECT_PATH}} \
-            -c windows-release \
-            -a ${{matrix.Architecture}} \
-            -o publish
-          else
-            dotnet \
-            publish ${{env.PROJECT_PATH}} \
-            -c linux-release \
-            -a ${{matrix.Architecture}} \
-            -o publish
-          fi
-        shell: bash
-
-      - name: Change File Name
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            mv "./publish/HardLinkTool.exe" "./publish/HardLinkTool-${{runner.os}}-${{matrix.Architecture}}.exe"
-          else
-            mv "./publish/HardLinkTool" "./publish/HardLinkTool-${{runner.os}}-${{matrix.Architecture}}"
-          fi
-        shell: bash
-
-      - name: Remove PDB
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          rm -Force ./publish/*.pdb
-
-      - name: Remove DBG
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-          rm -f ./publish/*.dbg
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-${{ matrix.Architecture }}
-          path: ${{ github.workspace }}/publish/*
-  
   create-release:
-    needs: [ build ]
+    needs: [ build-console, build-ui ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source

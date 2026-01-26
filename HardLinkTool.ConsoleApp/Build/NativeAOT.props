@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup Label="PublishAotConfiguration" Condition="'$(PublishAot)' == 'true'">
+        <TrimMode>full</TrimMode>
+        <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+        <StaticExecutable>true</StaticExecutable>
+    </PropertyGroup>
+
+</Project>
