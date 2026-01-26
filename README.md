@@ -1,8 +1,14 @@
 <h1>项目概括</h1>
 
-快速在**Windows**上递归建立文件夹内文件硬链接
+递归建立文件夹内文件硬链接的一个小程序
 
-<h1>用法</h1>
+<h1>使用</h1>
+
+
+推荐使用带有`Ui`后缀的程序.
+<details>
+<summary>如果非要使用控制台项目</summary>
+<h1>控制台用法</h1>
 
 ```
 ./HardLinkTool.exe <path> [--output/-o] <output path> [--skipSize/-s] <1024> [--overwrite/-r] [--refresh] <1000> [--no-progress/-np] [--no-error-log-file/-ne]
@@ -27,16 +33,22 @@ no-error-log-file: 是否不输出错误日志.
 
 除了 path 皆为可选项.
 ````
+</details>
 
-<h1>PS</h1>
-这个是我想保持bt做种制作的小工具.
+<h1>TODO</h1>
 
-本软件支持 WINDOWS, LINUX(未测试).
+- [ ] 更换程序图标
+- [ ] 更改致谢按钮位置与样式
+- [ ] 增加更多系统支持?
+- [ ] 或者更多功能...
 
 <h1>运行截图</h1>
+<details>
+<summary>截图折叠</summary>
 <img width="928" height="517" alt="runing" src="https://github.com/user-attachments/assets/7e7eaa40-5058-49e5-a470-56afc50dd886" />
 <img width="928" height="517" alt="complete" src="https://github.com/user-attachments/assets/63f9b435-6554-4bd8-add5-9296c4280319" />
-
+<img width="1540" height="911" alt="image" src="https://github.com/user-attachments/assets/31950dea-9678-4f93-b977-fe5370cb6bc9" />
+</details>
 
 <h1>特别感谢</h1>
 
