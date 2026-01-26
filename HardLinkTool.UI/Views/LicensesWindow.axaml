@@ -1,0 +1,94 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:HardLinkTool.UI.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600"
+        Width="700" Height="600"
+        x:Name="Licenses"
+        x:Class="HardLinkTool.UI.Views.LicensesWindow"
+        x:DataType="vm:LicensesViewModel"
+        Title="Licenses">
+
+    <Design.DataContext>
+        <vm:LicensesViewModel />
+    </Design.DataContext>
+
+    <Border Padding="20">
+        <ScrollViewer>
+            <StackPanel Spacing="">
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="致谢" FontSize="24" />
+                    <TextBlock Text="感谢所有开原作者的努力!" FontSize="14" />
+                </StackPanel>
+                <ItemsControl VerticalAlignment="Top" ItemsSource="{Binding Projects}">
+                    <ItemsControl.Styles>
+                        <Style Selector="Button.link">
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Background" Value="Transparent"></Setter>
+                            <Setter Property="Foreground" Value="#7DA4F8" />
+                            <Setter Property="FontStyle" Value="Italic" />
+                            <Style
+                                Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                <Setter Property="Cursor" Value="Hand"></Setter>
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter Property="Foreground" Value="#7DA4F8" />
+                                <Setter Property="TextBlock.TextDecorations" Value="Underline" />
+                            </Style>
+
+                            <Style Selector="^:pressed">
+                                <Setter Property="RenderTransform" Value="none" />
+                            </Style>
+
+                            <Style
+                                Selector="^:pressed  /template/ ContentPresenter#PART_ContentPresenter">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter Property="Foreground" Value="#7DA4F8" />
+                            </Style>
+                        </Style>
+
+                        <Style
+                            Selector="Expander.template
+                                        /template/ ToggleButton#ExpanderHeader 
+                                        /template/ Border#ExpandCollapseChevronBorder">
+                            <Setter Property="Margin" Value="6,0,8,0" />
+
+                        </Style>
+                    </ItemsControl.Styles>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Classes="template" Margin="0,0,0,8"
+                                      HorizontalAlignment="Stretch" Padding="8,8,8,4" BorderThickness="0">
+                                <Expander.Header>
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding ProjectName}" />
+                                        <Button Classes="link" HorizontalAlignment="Right" Content="HomePage"
+                                                Command="{Binding DataContext.OpenUrlCommand ,ElementName=Licenses, FallbackValue={x:Null}}"
+                                                CommandParameter="{Binding ProjectUrl}" />
+                                    </DockPanel>
+                                </Expander.Header>
+                                <Expander.Content>
+                                    <StackPanel>
+                                        <ScrollViewer MaxHeight="400">
+                                            <TextBlock Text="{Binding LicensesRaw}" TextWrapping="Wrap"
+                                                       Margin="0,0,0,8" />
+                                        </ScrollViewer>
+                                        <Button Classes="link" Content="License" FontSize="13"
+                                                HorizontalAlignment="Right" Padding="0"
+                                                Command="{Binding DataContext.OpenUrlCommand ,ElementName=Licenses, FallbackValue={x:Null}}"
+                                                CommandParameter="{Binding LicensesUrl}"
+                                                IsVisible="{Binding LicensesUrl, Converter= {x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                    </StackPanel>
+                                </Expander.Content>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+        </ScrollViewer>
+    </Border>
+</Window>

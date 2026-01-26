@@ -189,9 +189,12 @@
                     <DockPanel>
                         <TextBlock Text="跳过大小:" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <NumericUpDown Value="{Binding CreateHardLinkConfig.SkipSize}"
-                                       ShowButtonSpinner="False" />
+                                       ShowButtonSpinner="False"  IsEnabled="{Binding !CreateHardLinkCommand.IsRunning}"/>
                     </DockPanel>
-                    <Button Content="开始" Command="{Binding CreateHardLinkCommand}" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Button Grid.Column="0" Content="开始" Command="{Binding CreateHardLinkCommand}" Margin="0,0,2,0" />
+                        <Button Grid.Column="1" Content="📄" Click="OpenLicenses" />
+                    </Grid>
                 </StackPanel>
             </Grid>
         </Border>

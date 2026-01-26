@@ -50,6 +50,7 @@ public class WindowsManagerService : IWindowsManagerService
         {
             WindowConstant.DETAILS_WINDOW => (new ProgressDetailsWindows(), new ProgressDetailsWindowViewModel()),
             WindowConstant.SETTINGS_WINDOW => (new SettingsWindow(), new SettingsWindowViewModel()),
+            WindowConstant.LICENSES_WINDOW => (new LicensesWindow(), new LicensesViewModel()),
             _ => throw new ArgumentOutOfRangeException(nameof(window), window, null)
         };
     }
@@ -60,4 +61,6 @@ public static class WindowConstant
     public const string DETAILS_WINDOW = nameof(DETAILS_WINDOW);
 
     public const string SETTINGS_WINDOW = nameof(SETTINGS_WINDOW);
+    
+    public const string LICENSES_WINDOW = nameof(LICENSES_WINDOW);
 }

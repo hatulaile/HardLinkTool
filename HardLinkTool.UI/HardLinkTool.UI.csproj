@@ -25,9 +25,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="2ndLAB.ANGLE.Static" Version="7151.0.0-10.0.26100.0-1.79e529b" />
-        <PackageReference Include="2ndLAB.SkiaSharp.Static" Version="2.88.9-10.0.26100.0-1.1c7d845" />
-        <PackageReference Include="VC-LTL" Version="5.2.2"/>
+        <PackageReference Include="2ndLAB.ANGLE.Static" Version="7151.0.0-10.0.26100.0-1.79e529b" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
+        <PackageReference Include="2ndLAB.SkiaSharp.Static" Version="2.88.9-10.0.26100.0-1.1c7d845" Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
         <PackageReference Include="Avalonia" Version="11.3.11"/>
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.11"/>
         <PackageReference Include="Avalonia.Desktop" Version="11.3.11"/>
