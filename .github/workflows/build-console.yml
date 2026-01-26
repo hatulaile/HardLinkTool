@@ -69,6 +69,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: |
           rm -f ./publish/*.dbg
+          rm -f ./publish/*.pdb
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
