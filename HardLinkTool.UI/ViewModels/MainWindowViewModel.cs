@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -112,7 +113,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand(CanExecute = nameof(CanCreateHardLink))]
-    public async Task CreateHardLinkAsync()
+    public async Task CreateHardLinkAsync(CancellationToken token)
     {
         HardLinkEntry[] entries = HardLinkEntries.Where(x => Path.Exists(x.Target)).ToArray();
         if (entries.Length == 0) return;
@@ -120,7 +121,13 @@ public partial class MainWindowViewModel : ViewModelBase
         CreateHardLinkOption option =
             new CreateHardLinkOption(entries, CreateHardLinkConfig.SkipSize, CreateHardLinkConfig.IsOverwrite);
         var handler = new CreateHardLinkHandler(Logger, HardLinkProgressReport);
-        await handler.RunAsync(option);
+        await handler.RunAsync(option, token);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCancel))]
+    public void Cancel()
+    {
+        CreateHardLinkCommand.Cancel();
     }
 
 
@@ -130,6 +137,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool CanDeleteEntry() => !CreateHardLinkCommand.IsRunning && HasSelectedEntry();
     public bool CanClearEntry() => !CreateHardLinkCommand.IsRunning && HasEntry();
     public bool CanFilesDrop() => !CreateHardLinkCommand.IsRunning;
+    public bool CanCancel() => CreateHardLinkCommand.IsRunning;
     public bool CanCreateHardLink() => !CreateHardLinkCommand.IsRunning && HasEntry();
     public bool HasEntry() => HardLinkEntries.Count != 0;
     public bool HasSelectedEntry() => !SelectedEntry.Equals(default);
@@ -171,6 +179,7 @@ public partial class MainWindowViewModel : ViewModelBase
             ClearEntryCommand.NotifyCanExecuteChanged();
             OpenEditableCommand.NotifyCanExecuteChanged();
             FilesDropCommand.NotifyCanExecuteChanged();
+            CancelCommand.NotifyCanExecuteChanged();
         };
     }
 }

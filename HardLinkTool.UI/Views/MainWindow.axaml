@@ -189,10 +189,15 @@
                     <DockPanel>
                         <TextBlock Text="跳过大小:" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <NumericUpDown Value="{Binding CreateHardLinkConfig.SkipSize}"
-                                       ShowButtonSpinner="False"  IsEnabled="{Binding !CreateHardLinkCommand.IsRunning}"/>
+                                       ShowButtonSpinner="False" IsEnabled="{Binding !CreateHardLinkCommand.IsRunning}" />
                     </DockPanel>
                     <Grid ColumnDefinitions="*,Auto">
-                        <Button Grid.Column="0" Content="开始" Command="{Binding CreateHardLinkCommand}" Margin="0,0,2,0" />
+                        <Panel Grid.Column="0" Margin="0,0,2,0">
+                            <Button Content="开始" Command="{Binding CreateHardLinkCommand}" 
+                                    IsVisible="{Binding CreateHardLinkCommand.IsRunning, Converter={x:Static BoolConverters.Not}}"/>
+                            <Button Content="中止" Command="{Binding CancelCommand}" 
+                                    IsVisible="{Binding CreateHardLinkCommand.IsRunning}"/>
+                        </Panel>
                         <Button Grid.Column="1" Content="📄" Click="OpenLicenses" />
                     </Grid>
                 </StackPanel>
