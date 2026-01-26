@@ -1,5 +1,7 @@
 ﻿using Avalonia;
 using System;
+using System.Collections.Generic;
+using Avalonia.Media;
 
 namespace HardLinkTool.UI;
 
@@ -15,7 +17,18 @@ sealed class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
-            .WithInterFont()
             .UsePlatformDetect()
-            .LogToTrace();
+            .LogToTrace()
+            .With(new FontManagerOptions
+            {
+                DefaultFamilyName = "Source Han Sans CN",
+                FontFamilyMappings = new Dictionary<string, FontFamily>
+                {
+                    { "Source Han Sans CN", new FontFamily(
+                        "avares://HardLinkTool.UI/Assets/Fonts/SourceHanSansCN/SourceHanSansCN-Regular.otf#Source Han Sans CN") },
+                
+                    { "Source Han Sans CN Bold", new FontFamily(
+                        "avares://HardLinkTool.UI/Assets/Fonts/SourceHanSansCN/SourceHanSansCN-Bold.otf#思源黑体 CN") },
+                }
+            });
 }

@@ -11,6 +11,9 @@
     
     <Application.Styles>
         <FluentTheme />
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="{DynamicResource SourceHanSans}"/>
+        </Style>
         <StyleInclude Source="Views/ProgressDetailsControl.axaml"/>
     </Application.Styles>
 </Application>

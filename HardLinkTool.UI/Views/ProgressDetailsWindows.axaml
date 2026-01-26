@@ -7,8 +7,7 @@
         xmlns:c="using:HardLinkTool.UI.Converters"
         mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="270"
         Width="480" Height="270"
-        MinWidth="480" MinHeight="270"
-        MaxWidth="480" MaxHeight="270"
+        CanResize="False"
         x:Class="HardLinkTool.UI.Views.ProgressDetailsWindows"
         x:DataType="vm:ProgressDetailsWindowViewModel"
         Title="ProgressDetails">
@@ -30,8 +29,8 @@
                         <Setter Property="Margin" Value="10,0,10,0" />
                     </Style>
                     <Style Selector="StackPanel">
-                        <Setter Property="Spacing" Value="16"></Setter>
-                        <Setter Property="Margin" Value="0,6" />
+                        <Setter Property="Spacing" Value="12"></Setter>
+                        <Setter Property="Margin" Value="0,5" />
                     </Style>
                 </Grid.Styles>
 

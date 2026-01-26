@@ -5,9 +5,7 @@
         xmlns:viewModels="clr-namespace:HardLinkTool.UI.ViewModels"
         xmlns:converter="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
         mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="270"
-        Width="480" Height="270"
-        MinWidth="480" MinHeight="270"
-        MaxWidth="480" MaxHeight="270"
+        Width="480" Height="270" CanResize="False"
         x:DataType="viewModels:EditableWindowViewModel"
         x:Class="HardLinkTool.UI.Views.EditableWindow"
         Title="Editable">
