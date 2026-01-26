@@ -117,6 +117,7 @@ public sealed class CreateHardLinkHandler
                 _fileChannel.Writer.Complete();
                 await Task.WhenAll(fileProcessor).WaitAsync(token).ConfigureAwait(false);
             }
+            _results.state = CreateHardLinkState.Completed;
         }
         catch (OperationCanceledException)
         {
@@ -132,7 +133,6 @@ public sealed class CreateHardLinkHandler
         finally
         {
             _results.Stopwatch.Stop();
-            _results.state = CreateHardLinkState.Completed;
             _progressReport?.Complete(Results);
             await refreshToken.CancelAsync().ConfigureAwait(false);
             if (progressDisplayTask is not null)
