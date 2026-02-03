@@ -9,6 +9,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 
+
         <Company>hatulaile</Company>
         <Copyright>hatulaile</Copyright>
         <AssemblyTitle>HardLinkTool</AssemblyTitle>
@@ -16,6 +17,10 @@
         <NeutralLanguage>zh-CN</NeutralLanguage>
         <Description>创建硬链接UI工具</Description>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(ProjectPublishAot)' != ''">
+        <PublishAot>$(ProjectPublishAot)</PublishAot>
     </PropertyGroup>
 
     <Import Project="Build\NativeAOT.props"/>
