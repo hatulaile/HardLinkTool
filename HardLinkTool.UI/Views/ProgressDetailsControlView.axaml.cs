@@ -3,12 +3,12 @@ using Avalonia.Controls.Primitives;
 
 namespace HardLinkTool.UI.Views;
 
-public class ProgressDetailsControl : TemplatedControl
+public class ProgressDetailsControlView : TemplatedControl
 {
-    public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<ProgressDetailsControl, string>(
+    public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<ProgressDetailsControlView, string>(
         nameof(Title));
 
-    public static readonly StyledProperty<string> ValueProperty = AvaloniaProperty.Register<ProgressDetailsControl, string>(
+    public static readonly StyledProperty<string> ValueProperty = AvaloniaProperty.Register<ProgressDetailsControlView, string>(
         nameof(Value));
 
     public string Title

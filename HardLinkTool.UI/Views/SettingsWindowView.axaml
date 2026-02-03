@@ -4,9 +4,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:HardLinkTool.UI.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="HardLinkTool.UI.Views.SettingsWindow"
-        Title="SettingsWindow"
+        x:Class="HardLinkTool.UI.Views.SettingsWindowView"
+        Title="SettingsWindowView"
         x:DataType="vm:SettingsWindowViewModel">
-        
+
         <!-- 目前设置很少, 所以不用一个单独页面 -->
 </Window>

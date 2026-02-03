@@ -18,13 +18,17 @@ namespace HardLinkTool.UI.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public const string HAND_LINK_POSTFIX = "-link";
+    private readonly IHardLinkProgressReport _hardLinkProgressReport;
+    private readonly IDialogService _dialogService  ;
+    private readonly IStorageProvider _storageProvider;
+    private readonly ICreateHardLinkConfig _createHardLinkConfig;
+    private readonly ILogger _logger;
 
-    public IHardLinkProgressReport HardLinkProgressReport => ServiceLocator.Current.ProgressReport;
-    public IDialogService DialogService => ServiceLocator.Current.DialogService;
-    public IStorageProvider StorageProvider => ServiceLocator.Current.StorageProvider;
-    public ICreateHardLinkConfig CreateHardLinkConfig => ServiceLocator.Current.CreateHardLinkConfig;
-    public ILogger Logger => ServiceLocator.Current.Logger;
+    public IHardLinkProgressReport HardLinkProgressReport => _hardLinkProgressReport;
+    public ICreateHardLinkConfig CreateHardLinkConfig => _createHardLinkConfig;
+
+
+    public const string HAND_LINK_POSTFIX = "-link";
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(OpenEditableCommand))]
@@ -36,7 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanAddFile))]
     public async Task AddFileAsync()
     {
-        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        IReadOnlyList<IStorageFile> files = await _storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "选择添加的文件",
             AllowMultiple = true,
@@ -54,7 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanAddDirectoryAsync))]
     public async Task AddDirectoryAsync()
     {
-        IReadOnlyList<IStorageFolder> dirs = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        IReadOnlyList<IStorageFolder> dirs = await _storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = "选择添加的目录",
             AllowMultiple = true
@@ -92,7 +96,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanOpenEditable))]
     public async Task OpenEditableAsync()
     {
-        string newOutput = await DialogService.OpenEditable(SelectedEntry);
+        string newOutput = await _dialogService.OpenEditable(SelectedEntry);
         if (SelectedEntry.Output.Equals(newOutput)) return;
         int index = HardLinkEntries.IndexOf(SelectedEntry);
         HardLinkEntries.RemoveAt(index);
@@ -119,8 +123,8 @@ public partial class MainWindowViewModel : ViewModelBase
         if (entries.Length == 0) return;
 
         CreateHardLinkOption option =
-            new CreateHardLinkOption(entries, CreateHardLinkConfig.SkipSize, CreateHardLinkConfig.IsOverwrite);
-        var handler = new CreateHardLinkHandler(Logger, HardLinkProgressReport);
+            new CreateHardLinkOption(entries, _createHardLinkConfig.SkipSize, _createHardLinkConfig.IsOverwrite);
+        var handler = new CreateHardLinkHandler(_logger, _hardLinkProgressReport);
         await handler.RunAsync(option, token);
     }
 
@@ -161,8 +165,14 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(IHardLinkProgressReport progressReport, IDialogService dialogService, IStorageProvider storageProvider, ICreateHardLinkConfig createHardLinkConfig, ILogger logger)
     {
+        _hardLinkProgressReport = progressReport;
+        _dialogService = dialogService;
+        _storageProvider = storageProvider;
+        _createHardLinkConfig = createHardLinkConfig;
+        _logger = logger;
+
         HardLinkEntries.CollectionChanged += (_, _) =>
         {
             ClearEntryCommand.NotifyCanExecuteChanged();

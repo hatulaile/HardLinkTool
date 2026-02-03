@@ -12,11 +12,21 @@ namespace HardLinkTool.UI.ViewModels;
 
 public partial class EditableWindowViewModel : ViewModelBase
 {
-    public IStorageProvider StorageProvider => App.Current!.ServiceLocator.StorageProvider;
+    private readonly IStorageProvider _storageProvider;
 
-    public HardLinkEntry HardLinkEntry { get; }
+    public IStorageProvider StorageProvider => _storageProvider;
 
-    [ObservableProperty] private string _newOutput;
+    public HardLinkEntry HardLinkEntry
+    {
+        get;
+        internal set
+        {
+            field = value;
+            NewOutput = field.Output;
+        }
+    }
+
+    [ObservableProperty] private string _newOutput = string.Empty;
 
     partial void OnNewOutputChanged(string value)
     {
@@ -47,7 +57,7 @@ public partial class EditableWindowViewModel : ViewModelBase
             return;
         }
 
-        ValidateResult = new ValidateResult(true,"可用路径", Colors.ForestGreen);
+        ValidateResult = new ValidateResult(true, "可用路径", Colors.ForestGreen);
     }
 
     [RelayCommand]
@@ -55,7 +65,7 @@ public partial class EditableWindowViewModel : ViewModelBase
     {
         if (CreateHardLinkUtils.IsFile(HardLinkEntry.Target))
         {
-            SaveFilePickerResult fileResult = await StorageProvider.SaveFilePickerWithResultAsync(
+            SaveFilePickerResult fileResult = await _storageProvider.SaveFilePickerWithResultAsync(
                 new FilePickerSaveOptions
                 {
                     Title = "选择存放的文件位置",
@@ -68,7 +78,7 @@ public partial class EditableWindowViewModel : ViewModelBase
         else
         {
             var folders =
-                await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = "选择存放的文件夹", });
+                await _storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = "选择存放的文件夹", });
 
             if (folders.Count == 0)
                 return;
@@ -77,9 +87,8 @@ public partial class EditableWindowViewModel : ViewModelBase
         }
     }
 
-    public EditableWindowViewModel(HardLinkEntry entry)
+    public EditableWindowViewModel(IStorageProvider storageProvider)
     {
-        HardLinkEntry = entry;
-        NewOutput = entry.Output;
+        _storageProvider = storageProvider;
     }
 }

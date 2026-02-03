@@ -3,9 +3,9 @@ using Avalonia.Interactivity;
 
 namespace HardLinkTool.UI.Views;
 
-public partial class EditableWindow : Window
+public partial class EditableWindowView : Window
 {
-    public EditableWindow()
+    public EditableWindowView()
     {
         InitializeComponent();
     }

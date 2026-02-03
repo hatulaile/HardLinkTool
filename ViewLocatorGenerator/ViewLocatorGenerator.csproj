@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>14</LangVersion>
+        <EnForceExtendedAnalyzerRules>true</EnForceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.11" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageReference Include="PolySharp" Version="1.15.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+</Project>

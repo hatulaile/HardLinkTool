@@ -1,8 +1,10 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using HardLinkTool.Library.Modules;
 using HardLinkTool.UI.ViewModels;
 using HardLinkTool.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HardLinkTool.UI.Services;
 
@@ -12,11 +14,13 @@ public class DialogService : IDialogService
 
     public async Task<string> OpenEditable(HardLinkEntry entry)
     {
-        var window = new EditableWindow();
-        var editableViewModel = new EditableWindowViewModel(entry);
-        window.DataContext = editableViewModel;
+        var window = App.Current!.ServiceProvider.GetRequiredService<EditableWindowView>();
+        EditableWindowViewModel viewModel = (EditableWindowViewModel)window.DataContext!;
+        viewModel.HardLinkEntry = entry;
+        if (window is null) throw new NullReferenceException("Failed to create window.");
+        window.DataContext = window;
         if (await window.ShowDialog<bool>(_mainWindow))
-            return editableViewModel.NewOutput;
+            return viewModel.NewOutput;
 
         return entry.Output;
     }

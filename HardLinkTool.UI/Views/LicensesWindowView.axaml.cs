@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace HardLinkTool.UI.Views;
 
-public partial class LicensesWindow : Window
+public partial class LicensesWindowView : Window
 {
-    public LicensesWindow()
+    public LicensesWindowView()
     {
         InitializeComponent();
     }

@@ -4,9 +4,11 @@ namespace HardLinkTool.UI.ViewModels;
 
 public class ProgressDetailsWindowViewModel : ViewModelBase
 {
-    public IHardLinkProgressReport ProgressReport => ServiceLocator.Current.ProgressReport;
-    
-    public ProgressDetailsWindowViewModel()
+    private readonly IHardLinkProgressReport _progressReport;
+    public IHardLinkProgressReport ProgressReport => _progressReport;
+
+    public ProgressDetailsWindowViewModel(IHardLinkProgressReport progressReport)
     {
+        _progressReport = progressReport;
     }
 }

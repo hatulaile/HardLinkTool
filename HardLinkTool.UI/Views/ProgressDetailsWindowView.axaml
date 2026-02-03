@@ -8,7 +8,7 @@
         mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="270"
         Width="480" Height="270"
         CanResize="False"
-        x:Class="HardLinkTool.UI.Views.ProgressDetailsWindows"
+        x:Class="HardLinkTool.UI.Views.ProgressDetailsWindowView"
         x:DataType="vm:ProgressDetailsWindowViewModel"
         Title="ProgressDetails">
 
@@ -35,30 +35,30 @@
                 </Grid.Styles>
 
                 <StackPanel Grid.Column="0">
-                    <controls:ProgressDetailsControl Title="成功文件:"
+                    <controls:ProgressDetailsControlView Title="成功文件:"
                                                      Value="{Binding ProgressReport.LastResult.SuccessFile}" />
-                    <controls:ProgressDetailsControl Title="失败文件:"
+                    <controls:ProgressDetailsControlView Title="失败文件:"
                                                      Value="{Binding ProgressReport.LastResult.FailureFile}" />
-                    <controls:ProgressDetailsControl Title="复制文件:" Value="{Binding ProgressReport.LastResult.SkipFile}" />
-                    <controls:ProgressDetailsControl Title="存在文件:"
+                    <controls:ProgressDetailsControlView Title="复制文件:" Value="{Binding ProgressReport.LastResult.SkipFile}" />
+                    <controls:ProgressDetailsControlView Title="存在文件:"
                                                      Value="{Binding ProgressReport.LastResult.RepetitionFile}" />
-                    <controls:ProgressDetailsControl Title="覆盖文件:"
+                    <controls:ProgressDetailsControlView Title="覆盖文件:"
                                                      Value="{Binding ProgressReport.LastResult.OverwriteFile}" />
-                    <controls:ProgressDetailsControl Title="总文件:" Value="{Binding ProgressReport.LastResult.TotalFile}" />
+                    <controls:ProgressDetailsControlView Title="总文件:" Value="{Binding ProgressReport.LastResult.TotalFile}" />
                 </StackPanel>
 
                 <Border Grid.Column="1" />
 
                 <StackPanel Grid.Column="2">
-                    <controls:ProgressDetailsControl Title="新建文件夹:"
+                    <controls:ProgressDetailsControlView Title="新建文件夹:"
                                                      Value="{Binding ProgressReport.LastResult.NewDirectory}" />
-                    <controls:ProgressDetailsControl Title="失败文件夹:"
+                    <controls:ProgressDetailsControlView Title="失败文件夹:"
                                                      Value="{Binding ProgressReport.LastResult.FailureDirectory}" />
-                    <controls:ProgressDetailsControl Title="重复文件夹:"
+                    <controls:ProgressDetailsControlView Title="重复文件夹:"
                                                      Value="{Binding ProgressReport.LastResult.RepetitionDirectory}" />
-                    <controls:ProgressDetailsControl Title="覆盖文件夹:"
+                    <controls:ProgressDetailsControlView Title="覆盖文件夹:"
                                                      Value="{Binding ProgressReport.LastResult.OverwriteDirectory}" />
-                    <controls:ProgressDetailsControl Title="总文件夹:"
+                    <controls:ProgressDetailsControlView Title="总文件夹:"
                                                      Value="{Binding ProgressReport.LastResult.TotalDirectory}" />
                 </StackPanel>
             </Grid>

@@ -6,12 +6,12 @@
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600"
         Width="700" Height="600"
         x:Name="Licenses"
-        x:Class="HardLinkTool.UI.Views.LicensesWindow"
-        x:DataType="vm:LicensesViewModel"
+        x:Class="HardLinkTool.UI.Views.LicensesWindowView"
+        x:DataType="vm:LicensesWindowViewModel"
         Title="Licenses">
 
     <Design.DataContext>
-        <vm:LicensesViewModel />
+        <vm:LicensesWindowViewModel />
     </Design.DataContext>
 
     <Border Padding="20">
@@ -51,7 +51,7 @@
 
                         <Style
                             Selector="Expander.template
-                                        /template/ ToggleButton#ExpanderHeader 
+                                        /template/ ToggleButton#ExpanderHeader
                                         /template/ Border#ExpandCollapseChevronBorder">
                             <Setter Property="Margin" Value="8,0,8,0" />
                         </Style>

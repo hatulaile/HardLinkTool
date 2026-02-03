@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using Avalonia.Controls;
-using HardLinkTool.UI.ViewModels;
 using HardLinkTool.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HardLinkTool.UI.Services;
 
@@ -12,7 +12,7 @@ public class WindowsManagerService : IWindowsManagerService
 
     public void OpenWindow(string window, Window? owner = null)
     {
-        (Window window, ViewModelBase viewModel) view = GetWindow(window);
+        Window view = GetWindow(window);
 
         if (_windowCache.TryGetValue(window, out WeakReference<Window>? reference))
         {
@@ -25,12 +25,11 @@ public class WindowsManagerService : IWindowsManagerService
             _windowCache.TryRemove(window, out _);
         }
 
-        view.window.DataContext = view.viewModel;
-        view.window.Closed += (sender, args) => _windowCache.TryRemove(window, out _);
-        if (owner is not null) view.window.Show(owner);
-        else view.window.Show();
+        view.Closed += (sender, args) => _windowCache.TryRemove(window, out _);
+        if (owner is not null) view.Show(owner);
+        else view.Show();
 
-        _windowCache.TryAdd(window, new WeakReference<Window>(view.window));
+        _windowCache.TryAdd(window, new WeakReference<Window>(view));
     }
 
     public void CloseWindow(string window)
@@ -44,13 +43,16 @@ public class WindowsManagerService : IWindowsManagerService
         }
     }
 
-    private (Window window, ViewModelBase viewModel) GetWindow(string window)
+    private Window GetWindow(string window)
     {
         return window switch
         {
-            WindowConstant.DETAILS_WINDOW => (new ProgressDetailsWindows(), new ProgressDetailsWindowViewModel()),
-            WindowConstant.SETTINGS_WINDOW => (new SettingsWindow(), new SettingsWindowViewModel()),
-            WindowConstant.LICENSES_WINDOW => (new LicensesWindow(), new LicensesViewModel()),
+            WindowConstant.DETAILS_WINDOW => App.Current!.ServiceProvider
+                .GetRequiredService<ProgressDetailsWindowView>(),
+            WindowConstant.SETTINGS_WINDOW =>
+                App.Current!.ServiceProvider.GetRequiredService<SettingsWindowView>(),
+            WindowConstant.LICENSES_WINDOW =>
+                App.Current!.ServiceProvider.GetRequiredService<LicensesWindowView>(),
             _ => throw new ArgumentOutOfRangeException(nameof(window), window, null)
         };
     }
@@ -61,6 +63,6 @@ public static class WindowConstant
     public const string DETAILS_WINDOW = nameof(DETAILS_WINDOW);
 
     public const string SETTINGS_WINDOW = nameof(SETTINGS_WINDOW);
-    
+
     public const string LICENSES_WINDOW = nameof(LICENSES_WINDOW);
 }
