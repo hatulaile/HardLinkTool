@@ -35,14 +35,14 @@ jobs:
             -c windows-release \
             -a ${{matrix.Architecture}} \
             -o publish \
-            //p:PublishAot=true
+            //p:ProjectPublishAot=true
           else
             dotnet \
             publish ${{env.PROJECT_PATH}} \
             -c linux-release \
             -a ${{matrix.Architecture}} \
             -o publish \
-            /p:PublishAot=true
+            /p:ProjectPublishAot=true
           fi
         shell: bash
 
