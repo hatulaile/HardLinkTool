@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using HardLinkTool.Library.Features;
 using HardLinkTool.Library.Features.Loggers;
@@ -27,6 +29,7 @@ public class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            DisableAvaloniaDataAnnotationValidation();
             var services = new ServiceCollection();
             services.AddHardLinkTool();
             ServiceProvider = services.BuildServiceProvider();
@@ -49,6 +52,19 @@ public class App : Application
         catch (Exception e)
         {
             ServiceProvider.GetRequiredService<ILogger>().Fatal(e);
+        }
+    }
+
+    private void DisableAvaloniaDataAnnotationValidation()
+    {
+        // Get an array of plugins to remove
+        var dataValidationPluginsToRemove =
+            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+
+        // remove each entry found
+        foreach (var plugin in dataValidationPluginsToRemove)
+        {
+            BindingPlugins.DataValidators.Remove(plugin);
         }
     }
 }
