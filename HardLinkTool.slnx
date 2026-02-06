@@ -11,7 +11,12 @@
     <BuildType Solution="windows-debug|*" Project="Debug" />
     <BuildType Solution="windows-release|*" Project="Release" />
   </Project>
-  <Project Path="ViewLocatorGenerator/ViewLocatorGenerator.csproj" />
+  <Project Path="ViewLocatorGenerator/ViewLocatorGenerator.csproj">
+    <BuildType Solution="linux-debug|*" Project="Debug" />
+    <BuildType Solution="linux-release|*" Project="Release" />
+    <BuildType Solution="windows-debug|*" Project="Debug" />
+    <BuildType Solution="windows-release|*" Project="Release" />
+  </Project>
   <Project Path="HardLinkTool.Library/HardLinkTool.Library.csproj" />
   <Project Path="HardLinkTool.UI/HardLinkTool.UI.csproj">
     <BuildType Solution="linux-debug|*" Project="Debug" />
@@ -20,6 +25,9 @@
     <BuildType Solution="windows-release|*" Project="Release" />
   </Project>
   <Project Path="ViewModelIoCGenerator/ViewModelIoCGenerator.csproj">
-    <BuildType Project="Debug" />
+    <BuildType Solution="linux-debug|*" Project="Debug" />
+    <BuildType Solution="linux-release|*" Project="Release" />
+    <BuildType Solution="windows-debug|*" Project="Debug" />
+    <BuildType Solution="windows-release|*" Project="Release" />
   </Project>
 </Solution>
