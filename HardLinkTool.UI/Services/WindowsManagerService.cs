@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using Avalonia.Controls;
 using HardLinkTool.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using ViewModelIoCGenerator;
 
 namespace HardLinkTool.UI.Services;
 
@@ -48,11 +49,11 @@ public class WindowsManagerService : IWindowsManagerService
         return window switch
         {
             WindowConstant.DETAILS_WINDOW => App.Current!.ServiceProvider
-                .GetRequiredService<ProgressDetailsWindowView>(),
+                .GetRequiredService<ProgressDetailsWindow>(),
             WindowConstant.SETTINGS_WINDOW =>
-                App.Current!.ServiceProvider.GetRequiredService<SettingsWindowView>(),
+                App.Current!.ServiceProvider.GetRequiredService<SettingsWindow>(),
             WindowConstant.LICENSES_WINDOW =>
-                App.Current!.ServiceProvider.GetRequiredService<LicensesWindowView>(),
+                App.Current!.ServiceProvider.GetRequiredService<LicensesWindow>(),
             _ => throw new ArgumentOutOfRangeException(nameof(window), window, null)
         };
     }

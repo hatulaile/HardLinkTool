@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600"
         Width="700" Height="600"
         x:Name="Licenses"
-        x:Class="HardLinkTool.UI.Views.LicensesWindowView"
+        x:Class="HardLinkTool.UI.Views.LicensesWindow"
         x:DataType="vm:LicensesWindowViewModel"
         Title="Licenses">
 

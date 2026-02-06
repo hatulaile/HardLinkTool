@@ -6,6 +6,7 @@ using HardLinkTool.UI.Services;
 using HardLinkTool.UI.ViewModels;
 using HardLinkTool.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using ViewModelIoCGenerator;
 
 namespace HardLinkTool.UI.Extensions;
 
@@ -30,7 +31,7 @@ public static class ServiceCollectionExtension
 
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainWindowViewModel>();
-        ViewLocator.Initialize(services);
+        services.AddViewModels();
 
         return services;
     }

@@ -48,6 +48,7 @@
     <ItemGroup>
         <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj"/>
         <ProjectReference Include="..\ViewLocatorGenerator\ViewLocatorGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\ViewModelIoCGenerator\ViewModelIoCGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>
 
     <ItemGroup>

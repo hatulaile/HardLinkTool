@@ -14,7 +14,7 @@ public class DialogService : IDialogService
 
     public async Task<string> OpenEditable(HardLinkEntry entry)
     {
-        var window = App.Current!.ServiceProvider.GetRequiredService<EditableWindowView>();
+        var window = App.Current!.ServiceProvider.GetRequiredService<EditableWindow>();
         EditableWindowViewModel viewModel = (EditableWindowViewModel)window.DataContext!;
         viewModel.HardLinkEntry = entry;
         if (window is null) throw new NullReferenceException("Failed to create window.");

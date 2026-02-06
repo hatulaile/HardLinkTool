@@ -2,9 +2,9 @@
 
 namespace HardLinkTool.UI.Views;
 
-public partial class SettingsWindowView : Window
+public partial class SettingsWindow : Window
 {
-    public SettingsWindowView()
+    public SettingsWindow()
     {
         InitializeComponent();
     }

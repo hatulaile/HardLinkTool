@@ -4,13 +4,13 @@
     <Design.PreviewWith>
         <Border Padding="10">
             <StackPanel>
-                <controls:ProgressDetailsControlView Title="完成数量:" Value="1000000"/>
-                <controls:ProgressDetailsControlView Title="数量:" Value="1000000"/>
+                <controls:ProgressDetailsControl Title="完成数量:" Value="1000000"/>
+                <controls:ProgressDetailsControl Title="数量:" Value="1000000"/>
             </StackPanel>
         </Border>
     </Design.PreviewWith>
 
-    <Style Selector="controls|ProgressDetailsControlView">
+    <Style Selector="controls|ProgressDetailsControl">
         <Setter Property="Template">
             <ControlTemplate>
                 <DockPanel>

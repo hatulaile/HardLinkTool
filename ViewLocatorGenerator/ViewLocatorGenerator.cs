@@ -124,21 +124,18 @@ public sealed class StaticViewLocatorGenerator : IIncrementalGenerator
               using System;
               using System.Collections.Generic;
               using Avalonia.Controls;
-              using Microsoft.Extensions.DependencyInjection;
 
               namespace {{namespaceNameLocator}};
 
               public partial class {{classNameLocator}}
               {
-                  private static Dictionary<Type, Func<Control>> s_views = new();
-                  public static void Initialize(IServiceCollection services)
               """);
 
         source.AppendLine();
+        source.AppendLine("\tprivate static Dictionary<Type, Func<Control>> s_views = new()");
         source.AppendLine("\t{");
 
-
-        var userControlViewSymbol = compilation.GetTypeByMetadataName("Avalonia.Controls.Control");
+        var userControlViewSymbol = compilation.GetTypeByMetadataName("Avalonia.Controls.UserControl")!;
 
         foreach (var viewModelSymbol in relevantViewModels)
         {
@@ -147,26 +144,18 @@ public sealed class StaticViewLocatorGenerator : IIncrementalGenerator
             var classNameView = classNameViewModel.Replace(VIEW_MODEL_SUFFIX, VIEW_SUFFIX);
 
             var viewSymbol = compilation.GetTypeByMetadataName(classNameView);
-            if (viewSymbol is null || !InheritsFrom(viewSymbol, userControlViewSymbol!))
+            if (viewSymbol is null || !InheritsFrom(viewSymbol, userControlViewSymbol))
             {
                 source.AppendLine(
-                    $"\t\ts_views.Add(typeof({classNameViewModel}), () => new TextBlock() {{ Text = \"Not Found: {classNameView}\"}});");
+                    $"\t\t[typeof({classNameViewModel})] = () => new TextBlock() {{ Text = \"Not Found: {classNameView}\" }},");
             }
             else
             {
-                source.AppendLine(
-                    $"\t\tservices.AddTransient<{classNameViewModel}>();");
-                source.AppendLine($$"""
-                                    		services.AddTransient<{{classNameView}}>(sp =>
-                                                new {{classNameView}}(){DataContext = sp.GetRequiredService<{{classNameViewModel}}>()});
-                                    """);
-                source.AppendLine($"\t\ts_views.Add(typeof({classNameViewModel}), () => new {classNameView}());");
+                source.AppendLine($"\t\t[typeof({classNameViewModel})] = () => new {classNameView}(),");
             }
-
-            source.AppendLine();
         }
 
-        source.AppendLine("\t}");
+        source.AppendLine("\t};");
 
         if (!buildMethodExists)
         {

@@ -2,9 +2,9 @@
 
 namespace HardLinkTool.UI.Views;
 
-public partial class ProgressDetailsWindowView : Window
+public partial class ProgressDetailsWindow : Window
 {
-    public ProgressDetailsWindowView()
+    public ProgressDetailsWindow()
     {
         InitializeComponent();
     }

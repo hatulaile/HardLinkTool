@@ -13,9 +13,11 @@ using HardLinkTool.Library.Features.Loggers;
 using HardLinkTool.Library.Modules;
 using HardLinkTool.UI.Services;
 using HardLinkTool.UI.Utils;
+using ViewModelIoCGenerator;
 
 namespace HardLinkTool.UI.ViewModels;
 
+[IgnoreIoCGenerator]
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IHardLinkProgressReport _hardLinkProgressReport;
