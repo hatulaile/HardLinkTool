@@ -117,6 +117,7 @@ public sealed class CreateHardLinkHandler
                 _fileChannel.Writer.Complete();
                 await Task.WhenAll(fileProcessor).WaitAsync(token).ConfigureAwait(false);
             }
+
             _results.state = CreateHardLinkState.Completed;
         }
         catch (OperationCanceledException)
@@ -234,32 +235,45 @@ public sealed class CreateHardLinkHandler
         }
     }
 
-    private Task CreateFileHardLinkAsync(FileInfo info, string newFullPath, CancellationToken token)
+    private async Task CreateFileHardLinkAsync(FileInfo info, string newFullPath, CancellationToken token)
     {
         try
         {
-            if (token.IsCancellationRequested)
-                return Task.FromCanceled(token);
+            token.ThrowIfCancellationRequested();
 
             Interlocked.Increment(ref _results.totalFile);
-            if (Option.SkipSize > 0L && Option.SkipSize > info.Length)
-            {
-                FileSystem.CopyFile(info.FullName, newFullPath, Option.IsOverwrite);
-                Interlocked.Increment(ref _results.skipFile);
-                return Task.CompletedTask;
-            }
-
             if (File.Exists(newFullPath))
             {
                 if (!Option.IsOverwrite)
                 {
                     Interlocked.Increment(ref _results.repetitionFile);
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 Interlocked.Increment(ref _results.overwriteFile);
-                FileSystem.DeleteFile(newFullPath);
             }
+
+            if (Option.SkipSize > 0L && Option.SkipSize > info.Length)
+            {
+                if (info.Length > 1024L * 1024L * 10L)
+                {
+                    await using FileStream originalStream = info.OpenRead();
+                    await using FileStream targetStream =
+                        new FileStream(newFullPath, FileMode.Create, FileAccess.Write);
+                    await originalStream.CopyToAsync(targetStream, token).ConfigureAwait(false);
+                }
+                else
+                {
+                    info.CopyTo(newFullPath, true);
+                }
+
+                Interlocked.Increment(ref _results.successFile);
+                return;
+            }
+
+            if (File.Exists(newFullPath))
+                FileSystem.DeleteFile(newFullPath);
+
 
             if (TryCreateHardLink(info.FullName, newFullPath))
             {
@@ -270,13 +284,11 @@ public sealed class CreateHardLinkHandler
                 _logger.Error($"创建 {info.FullName} 至 {newFullPath} 硬链接失败");
                 Interlocked.Increment(ref _results.failureFile);
             }
-
-            return Task.CompletedTask;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Interlocked.Increment(ref _results.failureFile);
-            return Task.FromException(e);
+            throw;
         }
     }
 
