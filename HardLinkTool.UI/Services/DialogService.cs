@@ -18,7 +18,6 @@ public class DialogService : IDialogService
         EditableWindowViewModel viewModel = (EditableWindowViewModel)window.DataContext!;
         viewModel.HardLinkEntry = entry;
         if (window is null) throw new NullReferenceException("Failed to create window.");
-        window.DataContext = window;
         if (await window.ShowDialog<bool>(_mainWindow))
             return viewModel.NewOutput;
 

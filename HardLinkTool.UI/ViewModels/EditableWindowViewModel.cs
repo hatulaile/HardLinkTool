@@ -21,7 +21,7 @@ public partial class EditableWindowViewModel : ViewModelBase
         get;
         internal set
         {
-            field = value;
+            SetProperty(ref field, value);
             NewOutput = field.Output;
         }
     }

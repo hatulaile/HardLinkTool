@@ -18,7 +18,7 @@
         <TextBlock Grid.Row="0" Text="编辑" FontSize="24" FontWeight="Bold" Margin="0,0,0,12" />
         <StackPanel Grid.Row="1" Margin="0,0,0,16">
             <TextBlock Text="源文件路径:" Margin="0,0,0,2" />
-            <TextBox IsReadOnly="True" Text="{Binding HardLinkEntry.Target, Mode=OneTime}" />
+            <TextBox IsReadOnly="True" Text="{Binding HardLinkEntry.Target, Mode=Default}" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Margin="0,0,0,16">
