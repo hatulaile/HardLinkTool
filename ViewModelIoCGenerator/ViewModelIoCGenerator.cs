@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (c) Wiesław Šoltés
+
+//此代码修改自 https://github.com/wieslawsoltes/StaticViewLocator/blob/main/StaticViewLocator/StaticViewLocatorGenerator.cs
+//在 MIT 许可证的允许下进行修改和使用
+//完整的许可证 https://github.com/wieslawsoltes/StaticViewLocator?tab=MIT-1-ov-file
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;

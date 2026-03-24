@@ -47,11 +47,14 @@
 
     <ItemGroup>
         <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj"/>
-        <ProjectReference Include="..\ViewLocatorGenerator\ViewLocatorGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\ViewModelIoCGenerator\ViewModelIoCGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="StaticViewLocator" Version="0.4.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Xaml.Behaviors.Interactions.DragAndDrop" Version="11.3.9.3">
         </PackageReference>
         <PackageReference Include="Xaml.Behaviors.Interactivity" Version="11.3.9.3">
