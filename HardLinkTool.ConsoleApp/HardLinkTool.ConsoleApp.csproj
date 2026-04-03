@@ -23,7 +23,7 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HardLinkTool.Library\HardLinkTool.Library.csproj" />
