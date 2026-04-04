@@ -5,10 +5,42 @@
 
 version: 2
 updates:
-  - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "nuget"
+    directory: "/HardLinkTool.UI"
     schedule:
       interval: "daily"
-    groups:                    
-      default:                 
-        patterns: ["*"]        
+    groups:
+      Avalonia:
+        patterns: [ "Avalonia*" ]
+      ui-dependence:
+        patterns: [ "Microsoft.Extensions.DependencyInjection","Xaml.Behaviors*", "StaticViewLocator" ]
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+
+  - package-ecosystem: "nuget"
+    directory: "/HardLinkTool.ConsoleApp"
+    schedule:
+      interval: "daily"
+    groups:
+      console-dependence:
+        patterns: [ "System.CommandLine" ]
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      other-dependence:
+        patterns: [ "*" ]
+    ignore:
+      - dependency-name: "Avalonia.*"
+      - dependency-name: "Microsoft.Extensions.DependencyInjection"
+      - dependency-name: "Xaml.Behaviors.*"
+      - dependency-name: "System.CommandLine"
+      - dependency-name: "StaticViewLocator"
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
