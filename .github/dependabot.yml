@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/HardLinkTool.UI"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     groups:
       Avalonia:
         patterns: [ "Avalonia*" ]
@@ -21,7 +21,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/HardLinkTool.ConsoleApp"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     groups:
       console-dependence:
         patterns: [ "System.CommandLine" ]
@@ -32,7 +32,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     groups:
       other-dependence:
         patterns: [ "*" ]
